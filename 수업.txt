@@ -1,0 +1,115 @@
+2018.02.21
+
+리눅스 다운 링크 관련
+
+https://www.ubuntu.com/download/desktop
+버전 Ubuntu 16.04.3 LTS 다운
+
+USB를 부트 이미지로 굽는 방법 관련
+http://cafe.naver.com/hestit/1986
+
+컴퓨터별 바이오스 키
+http://cafe.naver.com/hestit/3126
+
+*리눅스에서 자주 사용하는 명령어
+
+터미널 키기: 			Ctrl + Alt + T
+현재 디렉토리 어디?:		pwd
+현재 디렉토리 뭐가있는지?:	ls
+C프로그램 컴파일 하기: 		gcc test.c		-> test.c 이름 자유
+디렉토리 만들기: 		mkdir lecture(자유)
+프로그램 디버깅: 		gdb
+디렉토리 이동하기:		cd
+*cd 명령어(절대경로 방식 / 상대경로 방식) 자세한건 카페 참고
+ 
+*Universal USB Installer 사용법
+
+구글에 Universal USB Installer 검색
+Step 1 -> ubuntu
+Step 2 -> Ubuntu 확장자 iso 셋팅
+Step 3 -> 본인의 USB장치를 셋팅(잘못 선택시 컴퓨터 자료 사라짐)
+	포맷(파일 시스템 저장 형식)을 FAT32로 설정(USB 기반으로 부팅위해서 필요)
+Step 4 -> 그대로
+이후 Create를 누르면 백업 경고 나옴 
+
+
+---------------------------------------------------
+
+
+수업관련 사이트
+
+https://github.com/
+
+http://cafe.naver.com/hestit
+
+http://koitt-tms.com/
+-> 사전평가 문제 이번주까지 메모장에 풀어 제출
+
+http://ideone.com/ - USB 가 없어서 리눅스에서 C 프로그램을 만들기 어려울 경우 테스트 가능(임시)
+
+-----------------------------------------------------
+
+sudo apt-get install vim
+vi test001.c
+
+[명령모드]->[편집모드] 단축키: a(현재 커서 뒤),A(맨뒤),i(현재 커서 위치),I(맨앞)
+[편집모드]->[명령모드] 단축키: esc
+u: 되돌리기(Ctrl+Z 기능)
+R(쉬프트 R): 앞으로 가기
+d3d: 3줄 지우기
+yy: 1줄 복사
+y3y: 3줄 복사
+p: 붙여넣기
+:%s/변경전/변경후/g  :치환
+:set nu  :라인 보이기
+/찾고자하는것
+n,N(앞뒤로 이동)
+:set hl search    :검색단어 강조 표시
+:$     :맨끝으로 이동하기
+:2000  :2000번째 줄로 이동하기
+Ctrl+F :페이지 다운
+Ctrl+B :페이지 업
+x      :글자 하나씩 삭제
+3x     :3글자 삭제
+:wq    :파일 저장하고 나가기 (vi로 다시 들어갈수 있음)
+cat    :파일에 들어가지않고 내용 보기
+
+./a.out :실행파일 실행
+gcc -o test002 test001.c	:실행파일 이름 바꾸기
+./test002.out   :실행
+gcc -g -o test002 test001.c
+gdb를 사용하려면 -g 옵션 필요
+
+rm - rf (삭제할 파일) :파일 삭제
+
+sudo apt-get install build-essential
+
+
+
+리눅스 명령어 정리
+http://cafe.naver.com/hestit/649
+http://cafe.naver.com/hestit/650
+
+
+오늘배운내용 정리해서 pdf로 github에 pull sudorequest하기
+sudo apt-get install git
+
+----------------------------------------------------------
+
+cd ~
+mkdir my_proj
+cd my_proj
+git clone https://github.com/SHL-Education/Homework.git
+ls
+cd Homework/sanghoonlee
+
+
+--------------------------------------------------------
+at gdb
+
+b main   -> break point
+b *0x0000000000400553
+r -> run
+disas -> 
+
+
