@@ -1,0 +1,263 @@
+2018-02-21 1회차
+
+이번주 안에 할일
+- 내일배움통장 및 카드(훈련장려금 지급용)
+- koitt-tms.com / 아이디: ucong41 / 사전평가
+- 리눅스 설치: https://www.ubuntu.com/download/desktop (16.04.3)
+	+ universal usb installer
+- git hub에 오늘 배운내용 정리해서 올리기 pdf로
+http://www.whatwant.com/332
+카페 파일 참고
+
+
+
+강의개요
+Koitt03a
+사후관리 수료후 7개월
+이상훈
+2/21 - 10/17
+9:40까지 입실  18:00 퇴실( 총 8시간)
+지각/외출/조퇴 3회 = 결석1일
+
+홈페이지
+네이버 카페/hestit
+github.com 프로젝트 숙제관리 깃허브 관리잘해서 해외취업하자!!
+
+하드웨어
+하드웨어:  아날로그 회로설계카페 블로그참조
+
+리눅스 설치
+http://cafe.naver.com/hestit/1986
+usb를 부트이미지로 굽는법
+컴퓨터 재시작 후 BIOS 들어가서 (http://cafe.naver.com/hestit/3126 진입키 참조)
+부팅순서 USB 1순위
+
+그러면 자동으로 리눅스 Installer 가 시작될 것이다.
+여기서 'try Ubuntu' 가 아닌 'Install' 을 선택해야 한다.
+그 다음부터는 특별한 지정없이 Next 하면 되는데
+주의해야할 사항이 있으므로 잠시 대기한다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+리눅스에서 자주 사용하는 명령어
+
+터미널 켜기 			Ctrl + Alt + T
+현재 디렉토리가 어디야 		pwd
+현재 디렉토리에 뭐가 있는거야 	ls
+C프로그램 컴파일 		gcc test.c
+디렉토리 만들기 			mkdir lecture
+프로그램 디버깅 			gdb
+디렉토리 이동 			cd
+*. 절대경로: '/' 최상위 root에서 가고싶은 위치까지 지정
+   상대경로: 현재 위치를 기준으로 한다.
+	ex) 현재 위치를 확인 	pwd 입력
+     	 '/home/id/lecture'    	여기에 test 라는 디렉토리가 있고 result 라는 디렉토리가 있다.
+      	'절대경로' 방식으로 test 에 가고 싶다
+	cd /home/id/lecture/test
+	만약 동일한 경로에 '상대경로'로 가고싶다
+	cd test
+
+*. '..' 의 경우에는 상위 디렉토리를 의미한다.
+    '.' 은 현재 디렉토리를 의미한다.
+
+	ex) 앞서 '/home/id/lecture/test' 로 이동했었다.
+ 	   여기에서 이제 lecture 디렉토리 밑에 result 에 가고 싶다 
+	'절대경로' 방식
+	 cd /home/id/lecture/result
+	 '상대경로' 방식
+	 cd ../result
+
+
+기계제어하기 위해 C 언어사용
+전자기학 맥스웰방정식
+전하이동-전기장-자기장
+*. 항공기나 우주선에 고성능 아키텍쳐를 사용할 수 없는 이유
+우주방사선 때문에 안정성 위협
+그래서 Radiation Hardened(방사선보호 처리된 장치)를 쓴다
++ 어떤 물체든 전자장비가 많이 들어가면 방사선 방출, 치사량이 아닐 뿐
+*. 우주방사선이 위험한 이유
+맥스웰방정식
+전하를 띤 입자가 이동하면 전기장 발생
+전기장의 변화는 자기장을 발생
+자기장의 변화가 전기장을 발생
+전기장이 존재한다 즉 전하가 이동한다 다시말해 전류가 흐른다는 이야기
+강력한 우주방사선에 의해 강한 전류가 유도 될 경우 장비 오작동을 일으킨다
+항공분야의 안정성을 해결한 솔루션에는 'Radiation Hardened' 가 붙는다
+
+
+pwd하면 	home/kcrg
+ls		List
+mkdir lecture 	lecture 디렉토리를 만든다
+ls		List
+clear  		화면지우기
+cd lecture	하위 Lecture로 이동
+mkdir test	lecture 디렉토리 밑에 test, result 디렉토리 생성
+mkdir result
+cd result		lecture디렉토리 하위의 result로 이동
+cd ~ 		(home/ID 계정의 시작디렉토리로 이동)
+ls / 		root? c드라이브를 본다?
+cd lecture/test	
+ls.. 		현재test에서 상위 lecture를 본다
+ cd test
+cd ../result	 lecture 간후 result로
+cd../../test 	상위 상위 test
+
+
+https://ideone.com/ 에서 C언어로 변경
+프로스램 시작시 main()호출
+
+#include <stdio.h>
+
+int main(void) {			*. void 쓰지말것 -> int
+
+// your code goes here
+	
+	printf("이 숫자는 %d\n이다",777);
+	
+	return 0;			 *. 정상종료라는 뜻?
+}
+
+C에서 "문자(나)열\n"
+숫자 %d
+
+
+*. stdin 인자? int argc clear**argc??
+stdout 모니터 출력
+
+
+
+
+mkdir c	
+ls	
+rm -rf result		result,test 디렉토리를 지운다
+rm -rf test		*. rm -rf / 	주의! C드라이브(/)를 지운다 
+cd c
+sudo apt-get update 	sw 업데이트 (reading pakage lists)
+sudo apt-get install vim 	vim 설치 (화살표 인식되게?)
+*. vim은 우분투에서 사용되는 vi 에디터에 
+설정을 더하여 보다 편리하게 사용할 수 있도록 해주는 에디터
+y
+
+코드 에디팅? http://igoto.x-y.net/xe/linux/154 참고
+http://0eun.tistory.com/112
+
+
+vim 3가지모드 - 명령, 입력/편집, ?
+
+vi print_message.c (코드명)
+	1---------------------------------------
+	[명령모드]
+	[텍스트 편집/입력모드] a.i,A,I 누르면 들어간다 
+		A: 커서가 위치한 행의 맨 뒤에 입력
+		I: 맨앞에
+		a: 현재 커서 다음 자리에 입력 
+		i: 현재 커서 자리에 입력
+	
+		(Insert 나온다 키보드 쳐보세요)
+	
+	ESC: [명령모드] 로 전환 
+
+	u: 명령취소, 되돌리기 (ctrl+z의 기능)
+	R: 앞으로 가기
+	dnd: n줄 지우기
+	4x: 4글자 지우기
+
+	yy: (1줄)복사
+	yny: 커서 밑으로 n줄 복사
+	p: (1줄)붙여넣기 - 여러번 반복 가능
+	%s/바꿀것/변경후/g: 치환명령
+		%s/Nihao/Hi/g: nihao를 hi로 치환
+	set nu: line번호 띄우기
+	/test(찾는문자): "test"문자검색
+		n 아래로 / N 위로 찾기
+	set hl search: 찾는 문자 형광펜 설정을 적용한다
+	$: 맨끝으로 이동하기
+	:숫자 - 2000번째 행(컬럼)으로 이동
+ctrl f 페이지 다운
+ctrl b 페이지 업
+
+//주석
+/* 주우우우
+  서어어억
+*/
+sudo apt-get install build-essential		gcc프로그램 설치
+	--------------------------------------
+
+
+OFTFO
+
+	2--------------------------------------
+	#include <stdio.h>
+
+	int main(void) {			*. void 쓰지말것 -> int
+
+// your code goes here
+	
+		printf("Hello\n");
+	
+		return 0;			 *. 정상종료라는 뜻?
+}
+
+wq : write quit	저장하고 나가기
+ls			
+cat print_message.c	print_message.c 내용보기
+(cat: 리눅스 파일내의 전체정보를 화면에 출력)
+
+(sudo apt-get install build-essential	gcc프로그램 설치)
+gcc print_message.c  			컴파일 -> a.out 실행파일 생성된다
+./a.out 					현재위치의 a.out을 실행해
+
+gcc -o print_msg(바뀐 파일명) print_message.c (바꿀파일) 	a.out 실행파일 이름 바꾸기
+./print_msg				현재위치의 print_msg을 실행
+ls				
+rm -rf a.out test			a.out 과 test 지운다
+
+[질문] 이름 바꾸는 데 왜 리스트하면 여러개 뜨지?
+-g 옵션이 적용된 파일을 다시 이름을 바꾸면 -g옵션은 그대로인가?
+
+
+디버깅 심볼
+확장자는 pdb이며 디버깅에 필요한 정보들이 들어가있습니다. 
+소스코드레벨에서 디버깅이 가능하도록 소스코드의 파일명이나 라인넘버등이 들어갈 수 있죠.
+우선 디버깅에 필요한 정보들이 들어가는 파일이구나.. 하는 정도로 알아두면 되겠습니다.
+
+
+*. 소스 디버깅 (-g 디버깅 옵션) 
+gcc -g -o print_msg print_message.c  
+gcc -o print print_message.c 
+
+	gdb  print (-g옵션 없을때)
+		no debugging symbol
+	gdb  print_msg (-g옵션 있을때)
+		뭔가 나온다
+		
+
+(sudo apt-get install git  		github 설치하기???)
+y
+
+
+
+
+
+*. vi 편집기 내용정리
+	http://cafe.naver.com/hestit/650
+ 	http://cafe.naver.com/hestit/649
+	--------------------------------------	
+
+
+
+
+
+
