@@ -1,0 +1,378 @@
+http://cafe.naver.com/hestit - 네이버 카페
+
+https://github.com/ - 프로젝트 및 숙제 관리
+
+https://ideone.com/ - USB가 없어서 지금 당장 리눅스에서 C 프로그램을 만들기 어려울 경우
+                      이 사이트를 활용해서 C 프로그래밍을 테스트 할 수 있다.
+                      시스템 프로그래밍이나 드라이버쪽은 안되니 초반에만 잠깐 활용 할 수 있다.
+                      당장 설치가 힘들 경우 임시 방편으로 사용하자!
+                      어쨋든 리눅스 깔자!
+
+깃 허브 관리 - 닉네임, 이메일 주소
+
+koitt-tms.com
+
+오리엔테이션 사전평가 문제 확인
+
+과정이 끝날때쯤이면 대부분 다 풀 수 있을것임
+(지금 현재 아마 대부분 한 문제 풀기도 힘들수도 ;;;)
+
+https://www.ubuntu.com/download/desktop
+
+Download Ubuntu Desktop 에서 Download 를 누른다.
+(16.04.3 버전 다운로드)
+
+돈내라는 창이 나오면(엄밀하게 기부 - 선택은 자유)
+맨 아래쪽 Not now, take me to the download 를 누름
+
+카페 글 중 아래 내용에서 2 번째 링크를 누른다.
+
+http://cafe.naver.com/hestit/1986
+
+USB 를 부트 이미지로 굽는 방법에 대한 글임
+
+* 주의 사항: USB 를 포맷하게 되므로
+             반드시 백업을 해두고 진행하자!
+
+여기까지 진행이 완료되었다면
+컴퓨터를 재시작하고 BIOS 에 들어간다.
+
+그리고 부팅 순서 지정하는 부분에서
+USB 를 1 순위로 지정한다.
+
+http://cafe.naver.com/hestit/3126 - 컴퓨터별 BIOS 키
+
+그러면 자동으로 리눅스 Installer 가 시작될 것이다.
+여기서 'try Ubuntu' 가 아닌 'Install' 을 선택해야 한다.
+그 다음부터는 특별한 지정없이 Next 하면 되는데
+주의해야할 사항이 있으므로 잠시 대기한다.
+
+
+
+* 리눅스에서 자주 사용하는 명령어
+
+터미널 키기: 				Ctrl + Alt + T
+현재 디렉토리가 어디인지 궁금해:	pwd
+현재 디렉토리에 뭐가 있는거야 ?		ls
+C 프로그램 컴파일 하기:			gcc test.c
+
+					test.c 이름은 맘대로 해도됨
+					단 뒤에 확장자 '.c' 는
+					확실하게 지켜주자!
+
+디렉토리 만들기:			mkdir lecture
+
+					마찬가지로 만들고 싶은 이름
+					가령 mkdir test 로 해도됨
+
+프로그램 디버깅 하기:			gdb
+
+					요건 C 언어 함수 분석 시
+					어셈블리어를 분석하면서
+					그 때 자세히 볼 예정
+
+디렉토리 이동하기:			cd
+
+* cd 명령어에는 두 가지 방법이 있다.
+  '절대경로' 방식과 '상대경로' 방식이 존재한다.
+  절대 경로 방식이란 '/' 최상위 root 에서
+  가고 싶은 위치까지를 지정하는 방식
+
+  ex) 현재 위치를 확인하고 싶어서 pwd 명령을 입력함
+      현재 위치는 '/home/id/lecture' 이다.
+      여기에 test 라는 디렉토리가 있고 result 라는 디렉토리가 있다.
+      '절대경로' 방식으로 test 에 가고 싶다고 가정한다.
+      아래와 같이 명령어를 입력하면 된다.
+
+      cd /home/id/lecture/test
+
+      만약 동일한 경로에 '상대경로' 로 가고 싶다면 아래와 같이 한다.
+      주의할 것이 '상대경로' 라는 것은 현재 위치를 기준으로 한다.
+      그러므로 pwd 명령을 통해 현재 위치를 반드시 확인하도록 한다.
+      현재 위치가 '/home/id/lecture' 이므로 아래와 같이 입력한다.
+
+      cd test
+
+여기서 또 하나 주의해야할 것이 있다.
+프로젝트 개발을 하다보면 상위, 하위 왔다갔다 하는 경우가 많다.
+이럴 경우에 '..' 과 '.' 을 볼 수 있다.
+
+'..' 의 경우에는 상위 디렉토리를 의미한다.
+'.' 은 현재 디렉토리를 의미한다.
+
+ex) 앞서 '/home/id/lecture/test' 로 이동했었다.
+    여기에서 이제 lecture 디렉토리 밑에 result 에 가고 싶다 가정한다.
+    그렇다면 어떻게 하면 될까 ?
+
+    '절대경로' 방식
+
+    cd /home/id/lecture/result
+
+    '상대경로' 방식
+
+    cd ../result
+
+    앞서 설명했던 '..' 은 상위 디렉토리다.
+    즉 현재 위치가 '/home/id/lecture/test' 이므로
+    '..' 을 통해서 '/home/id/lecture' 로 이동하게 된다.
+    그리고 'home/id/lecture' 에서 result 로 이동한 것이 된다.
+
+
+
+
+* Universal USB installer 사용법
+
+구글에  "을 검색한다
+
+Yes -> I Agree
+
+step 1 에는 ubuntu
+
+step 2 에는 ubuntu 확장자 iso 파일을 셋팅한다.
+            되도록이면 환경 설정에 하자가 없기 위해서는 16.04.3 을 사용하는 것이 좋다
+            혹시라도 잘못 받았다면 다시 하자
+
+step 3 가 본인의 USB장치를 셋팅하면 된다
+          위치를 잘 보고 하자
+          위치 지정 잘못하면 컴퓨터채로 날아간다. 포맷(파일 시스템 저장형식)을 fat32로 맞춰준다.
+          USB기반으로 부팅을 수행하기 위해서는 반드시 FAT32 여야함.
+
+step 4 는 건드리지 말자
+
+이후에 Create 를 누른다
+다 지워진다고 백업하라는 경고가 나온다
+예를 누르면 usb에 부트 이미지가 구워지다.
+
+
+*항공기나 우주선등에 고성능 아키텍처를 사용하지 못하는 이유
+
+결론 : 우주 방사선 때문. (안정성이 낮음. 전기장 자기장 생겨서 방해)
+
+증명 : 
+
+Radiation hardened (방사선 보호장치)
+
+참고로 어떤 물체던지 방사선은 내뿜음 (치사량이 아닐뿐)
+
+차량 선박 항공기 우주선 군용 시스템에 해당한다.
+(전자 장비가 많이 들어가서 그럼)
+
+[추가적으로 우주에서 활동하는건 직접적으로 우주 방사선을 맞기도 함 ]
+
+*우주 방사선이 위험한 이유
+
+결론 : 맥스웰 방정식
+
+방사선은 전하를 띈 입자임.
+전하를 띈 입자가 이동하면 전기장이 발생
+원래 없던 전기장이 해당 공간에 발생하는 것이므로 자기장이 유도됨
+문제는 자기장도 없다생겼으므로 근처에 전기장을 유도함
+여기서 전기장이 존재한다는 것은 전하를 이동시킬 수 있다는 것이므로 전류를 유도할 수 있다는 것이 된다 ( 우주 방사선은 강력하기까지도 함)
+강한 전류가 유도될 경우 장비가 고장나거나 오작동 할 수 있다.
+항공 분야에서 말하는 안정성이란 것은 이것을 의미하며
+이를 해결한 솔루션에는 'Radiation Hardened'가 붙는다
+
+
+*우분타  
+
+$ cat : 디렉토리 안에꺼 바로보기
+
+
+~/lecture/c
+[명령모드] esc
+ 
+           치환 -> :%s/바꿀꺼/바꿀려는거/g 
+           
+           라인번호보기 :set nu
+      
+           /찾고자하는 것 n , N
+
+           찾기-> :set hlsearch 
+           
+           맨끝으로 이동하기 -> :$
+
+           특정라인이동 -> :이동할숫자
+
+           한페이지단위 이동 -> ctrl f (페이지다운)
+
+                                ctrl b (페이지업)
+
+           단어지우기 -> x
+ 
+           여러단어지우기 ->숫자x (ex: 4x)
+
+           저장하고 나가기 :wq
+
+vi(편집모드들어가기)
+ [편집모드] -> a(현재커서 뒤),i(현재커서 위치),A(맨뒤로),I(맨앞으로)        
+  
+             u:되돌리기
+             R:앞으로가기
+        
+             d3d:3줄지우기
+             y숫자y:복사
+             p:붙여넣기
+
+/* 주석달기 */
+
+컴파일 명령어 gcc
+gcc 파일이름 엔터누름.
+
+하면 a.out이 생성됨 이건 실행파일임.
+
+./a.out -> 실행파일을 실행시킴.
+
+
+./ -> 실행시키는 명령어
+
+실행파일 이름바꾸기
+
+gcc -o print_msg((커스터마이징할 이름씀)) print_message.c
+
+예) gcc -o wetman print_message.c
+
+rm -rf 는 삭제.
+
+gdb를 쓰려면 -g옵션이 필요하다.
+
+(gcc -g -o 은 디버깅)
+
+~/lecture/c$ gcc -o print_msg print_message.c
+           $ ls
+
+컴파일 다운받기 : sudo apt-get install build-essential
+
+git설치 : sudo apt-get install git
+            
+
+
+
+펌웨어에선 소스코드 분석 , 작성 , 디버깅.  ->분석과 디버깅이 가장 중요 (분석 못하면 작성이 비효율)
+* \ = 역슬러쉬
+
+숫자출력할땐 %d
+
+printf("this number is %d\n" , 777);
+
+
+*나선환모양 lang입력 들어가서 입력 그후 비밀번호입력
+
+float %f
+double %lf
+long double %llf
+
+cp=내용복산데 이름을 바꿀수잇음
+
+  cp print_message.c print_test.c
+
+
+printf("%s\n", "test");
+      ("%d\n", 10);
+      ("%f\n", 7.7);
+      ("hello 임베디드 클래스\n");
+
+
+test
+10
+7.700000
+
+이렇게 나오는데
+
+점 0000 없애고싶으면
+
+("%.1f\n, 7.7);
+ 라고하면 7.7로뜸  7,70하고프면 .2
+
+변수
+
+메모리에 정보를 저장할 수 있는 공간
+
+포인터는 그 정보의 주소
+
+stack 지역 변수가 위차하는 영역
+heap 동적 할당된 녀석들이 위치하는 영역 (colloc , molloc)
+data 전역 변수 및 static으로 선언된 것들이 위치하는 영역 , 초기화 되지 않는 모든것은 0으로 저장됨
+text machine code가 위치하는 영역
+
+
+ctrl d -> 현재파일이름알기
+
+#include <stdio.h>
+
+int main(void)
+{
+      /*Data Type
+      int, short, char,float,double,long double */
+
+      int num1 = 3;
+      int num2 = 7;
+      float num3 = 7,7;
+      double num4 = 3.3;
+  
+      int res1;
+      double res2;
+   
+      printf("num1 = %d, num2 = %d, num3 = %f , num4 = %lf\n");
+
+      res1 = num1 * num3;     //multiply                -->*는곱하기고 소수점을 곱했지만 23이나옴 왜냐면 int로 했기때문
+      res2 = num1 * num2;
+
+      printf("res1 = %d, res2 = %lf\n", res1, res2);
+
+      return 0;
+
+
+
+그렇게하면 결과가
+int는 정수
+double은 소수점이라서
+
+res1 = 23이고 res2= 21.000000 임
+
+
+
+
+
+cd ~
+mkdir my_proj
+cd my_proj/
+git clone (링크복사=>clone눌러서복사)https://
+
+
+
+
+함수
+
+
+***git pull origin master clone주소 ==> 찾기?
+
+#include <stdio.h>
+
+int myfunc(int num)
+{
+	//return num*2;
+    return num + 3;
+	//return num <<1;
+	
+}
+
+int main(void) 
+{
+    int num = 3, res;
+    res = myf
+    printf("res = %d", res);
+	return 0;
+}
+
+
+ㅡㅡㅡㅡ
+gcc -g -o debug func1.c
+ls
+gdb debug
+ㅡㅡㅡㅡ
+b main ==> 브레이크포인트   예)b 0x0239530958 
+r          실행
+disas ==> 기계어 보기
+
+CPU 변동 레지스터 보기
+
