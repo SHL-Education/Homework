@@ -20,6 +20,8 @@ void print_seven_series(int num)
 
 int main(void)
 {
-	print_seven_series(7);
+	int num;
+	scanf("%d", &num);
+	print_seven_series(num);
 	return 0;
 }
