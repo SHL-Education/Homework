@@ -14,7 +14,7 @@
 
 
 // int (*)(int, int) *(int) pof_test_main(flaoat (*)(int, double))
-// int (*(* pof_test_main(float(*)(int,double)))(int)) (int, int)
+// int (*)(int, int) (pof_test_main(flaoat (*)(int, double)
 
 
 
