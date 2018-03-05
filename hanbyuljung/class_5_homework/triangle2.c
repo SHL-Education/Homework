@@ -1,16 +1,20 @@
 #include<stdio.h>
 #include<math.h>
+#include<conio.h>
 
-int angle(int a, int b)
+#define PI 3.14
+
+double getRadian(int num)
 {
-	if(b<90 && b>0)
-		return;
-	else if(b == 90)
-		return a*b/2;
-	else if(b>90 && b<180)
-		return ;
-	else 
-		return 0;
+	return num*(PI/180);
+}
+
+
+double angle(int a, int b)
+{
+
+	double num = getRadian(b);
+	return a*b/2*sin(num);
 }
 
 
@@ -25,6 +29,6 @@ int main(void)
 	scanf("%d",&b);
 
 
-	printf("삼각형의 넓이 = %d\n",angle);
+	printf("삼각형의 넓이 = %.3lf\n",angle(a,b));
 	return 0;
 }
