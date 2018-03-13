@@ -457,6 +457,9 @@ int main(void)
 
 	init_rand_arr(data, size);
 
+	for(i = 0; i < size; i++)
+		printf("data[%d] = %d\n", i, data[i]);
+
 	rbt = rb_tree_create();
 
 	for(i = 0; i < size; i++)

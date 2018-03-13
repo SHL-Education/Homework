@@ -88,13 +88,6 @@ void print_tree(avl *root)
 	}
 }
 
-
-
-
-
-
-
-
 int update_level(avl *root)
 {
 	int left = root->left ? root->left->lev : 0;
@@ -106,17 +99,6 @@ int update_level(avl *root)
 	return right + 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
 int rotation_check(avl *root)
 {
 	int left = root->left ? root->left->lev : 0;
@@ -124,20 +106,6 @@ int rotation_check(avl *root)
 
 	return right - left;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int kinds_of_rot(avl *root, int data)
 {
@@ -163,6 +131,7 @@ int kinds_of_rot(avl *root, int data)
 
 avl *rr_rot(avl *parent, avl *child)
 {
+	//parent->right = child->left ? child->left : child->right;
 	parent->right = child->left;
 	child->left = parent;
 	parent->lev = update_level(parent);
@@ -172,6 +141,7 @@ avl *rr_rot(avl *parent, avl *child)
 
 avl *ll_rot(avl *parent, avl *child)
 {
+	//parent->left = child->right ? child->right : child->left;
 	parent->left = child->right;
 	child->right = parent;
 	parent->lev = update_level(parent);
@@ -179,37 +149,76 @@ avl *ll_rot(avl *parent, avl *child)
 	return child;
 }
 
-avl *rl_rot(avl *parent, avl *child)
+#if 0
+avl *rl_rot(avl *parent, avl *child, int data)
+{
+}
+#endif
+
+#if 0
+avl *lr_rot(avl *parent, avl *child, int data)
+{
+	avl *tmp;
+
+	if(child->right->data > data)
+	{
+		tmp = child->right->left;
+		child->right->right = parent;
+		child->right->left = child;
+		child->right = tmp;
+		parent->left = NULL;
+	}
+	else
+	{
+		tmp = child->right->right;
+		child->right->right = parent;
+		child->right->left = child;
+		parent->left = tmp;
+		tmp = parent->left;
+		child->right = NULL;
+	}
+
+	return tmp;
+}
+#endif
+
+avl *rl_rot(avl *parent, avl *child, int data)
 {
 	child = ll_rot(child, child->left);
+	//child = ll_rot(child, child->left);
 	return rr_rot(parent, child);
 }
 
-avl *lr_rot(avl *parent, avl *child)
+#if 1
+avl *lr_rot(avl *parent, avl *child, int data)
 {
 	child = rr_rot(child, child->right);
+	//child = rr_rot(child, child->left);
 	return ll_rot(parent, child);
 }
+#endif
 
 //void rotation(avl *root, int ret)
-avl *rotation(avl *root, int ret)
+avl *rotation(avl *root, int ret, int data)
 {
 	switch(ret)
 	{
 		case RL:
 			printf("RL Rotation\n");
-			return rl_rot(root, root->right);
+			return rl_rot(root, root->right, data);
 		case RR:
 			printf("RR Rotation\n");
 			return rr_rot(root, root->right);
 		case LR:
 			printf("LR Rotation\n");
-			return lr_rot(root, root->left);
+			return lr_rot(root, root->left, data);
 		case LL:
 			printf("LL Rotation\n");
 			return ll_rot(root, root->left);
 	}
 }
+
+
 
 void avl_ins(avl **root, int data)
 {
@@ -231,7 +240,7 @@ void avl_ins(avl **root, int data)
 	if(abs(rotation_check(*root)) > 1)
 	{
 		printf("Insert Rotation!\n");
-		*root = rotation(*root, kinds_of_rot(*root, data));
+		*root = rotation(*root, kinds_of_rot(*root, data), data);
 		//rotation(*root, kinds_of_rot(*root, data));
 	}
 }
@@ -287,7 +296,7 @@ void avl_del(avl **root, int data)
 	if(abs(rotation_check(*root)) > 1)
 	{
 		printf("Delete Rotation!\n");
-		*root = rotation(*root, kinds_of_rot(*root, data));
+		*root = rotation(*root, kinds_of_rot(*root, data), data);
 		//rotation(*root, kinds_of_rot(*root, data));
 	}
 }
@@ -296,14 +305,19 @@ int main(void)
 {
 	int i;
 	avl *root = NULL;
+	avl *test = NULL;
 	int arr[16] = {0};
 	int size = sizeof(arr) / sizeof(int) - 1;
+
+	//int data[] = {100, 50, 200, 25, 75, 80};
+	int data[] = {100, 50, 200, 25, 75, 70};
 
 	srand(time(NULL));
 
 	init_rand_arr(arr, size);
 	print_arr(arr, size);
 
+#if 0
 	for(i = 0; i < size; i++)
 		avl_ins(&root, arr[i]);
 
@@ -315,6 +329,14 @@ int main(void)
 	avl_del(&root, arr[9]);
 	
 	print_tree(root);
+#endif
+
+	printf("\nDebug AVL\n");
+
+	for(i = 0; i < 6; i++)
+		avl_ins(&test, data[i]);
+
+	print_tree(test);
 
 	return 0;
 }
