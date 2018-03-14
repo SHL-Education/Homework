@@ -378,8 +378,8 @@ void avl_del(avl **root, int data)
 				printf("Extract Stack: %d, data = %d\n", --cnt, data);
 				pop(&top);
 			}
-			//goto lets_rot;
-			return;
+			goto lets_rot;
+			//return;
 		}
 	}
 
@@ -424,20 +424,21 @@ int main(void)
 
 	//int data[] = {100, 50, 200, 25, 75, 80};
 	int data[] = {100, 50, 200, 25, 75, 70};
+	int d2[] = {57, 32, 15, 7, 5, 18, 28, 34, 45, 79, 73, 93, 89, 97};
 
 	srand(time(NULL));
 
 	init_rand_arr(arr, size);
 	print_arr(arr, size);
 
-#if 1
+#if 0
 	for(i = 0; i < size; i++)
 		avl_ins(&root, arr[i]);
 
 	print_tree(&root);
 #endif
 
-#if 1
+#if 0
 	printf("\nAfter Delete\n");
 	avl_del(&root, arr[3]);
 	avl_del(&root, arr[6]);
@@ -458,6 +459,11 @@ int main(void)
 	printf("\nFinal Result\n");
 	print_tree(&test);
 #endif
+
+	for(i = 0; i < 14; i++)
+		avl_ins(&test, d2[i]);
+
+	print_tree(&test);
 
 	return 0;
 }
