@@ -81,6 +81,24 @@ stack *get_stack_node(void)
 	return tmp;
 }
 
+void *mid_pop(stack **top)
+{
+	stack *tmp = (*top)->link;
+	void *data = NULL;
+
+	if(*top == NULL)
+	{
+		printf("Don't do like it!\n");
+		return NULL;
+	}
+
+	data = (*top)->link->data;
+	(*top)->link = (*top)->link->link;
+	free(tmp);
+
+	return data;
+}
+
 void *pop(stack **top)
 {
 	stack *tmp = *top;
@@ -298,7 +316,7 @@ void avl_ins(avl **root, int data)
 #endif
 }
 
-avl *chg_node(avl *root)
+avl *chg_node(avl *root, stack **top)
 {
 	avl *tmp = root;
 
@@ -308,6 +326,18 @@ avl *chg_node(avl *root)
 		root = root->right;
 
 	free(tmp);
+
+	/* for automatic stack unwinding */
+	if(root)
+	{
+		printf("chg_node: mid pop\n");
+		mid_pop(top);
+	}
+	else
+	{
+		printf("chg_node: pop\n");
+		pop(top);
+	}
 
 	return root;
 }
@@ -338,7 +368,7 @@ void find_max(avl **root, int *data)
 		else
 		{
 			*data = (*tmp)->data;
-			*tmp = chg_node(*tmp);
+			*tmp = chg_node(*tmp, NULL);
 			break;
 		}
 	}
@@ -371,13 +401,16 @@ void avl_del(avl **root, int data)
 		{
 			int counter = cnt;
 
-			(*tmp) = chg_node(*tmp);
+			printf("Do one or nothing node\n");
+			(*tmp) = chg_node(*tmp, &top);
 
+#if 0
 			for(i = 0; i < counter; i++)
 			{
 				printf("Extract Stack: %d, data = %d\n", --cnt, data);
 				pop(&top);
 			}
+#endif
 			goto lets_rot;
 			//return;
 		}
@@ -425,6 +458,7 @@ int main(void)
 	//int data[] = {100, 50, 200, 25, 75, 80};
 	int data[] = {100, 50, 200, 25, 75, 70};
 	int d2[] = {57, 32, 15, 7, 5, 18, 28, 34, 45, 79, 73, 93, 89, 97};
+	int d3[] = {50, 100, 25, 10};
 
 	srand(time(NULL));
 
@@ -460,8 +494,12 @@ int main(void)
 	print_tree(&test);
 #endif
 
-	for(i = 0; i < 14; i++)
-		avl_ins(&test, d2[i]);
+	for(i = 0; i < 4; i++)
+		avl_ins(&test, d3[i]);
+
+	print_tree(&test);
+
+	avl_del(&test, 100);
 
 	print_tree(&test);
 
