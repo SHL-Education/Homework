@@ -6,10 +6,7 @@ int fib(int num){
 		return 1;
 	else
 		return fib(num-1)+fib(num-2);
-
-
 }
-
 
 int main(void)
 {
@@ -19,5 +16,4 @@ int main(void)
 	result = fib(final_val);
 	printf("%d번째 항의 수는 = %d\n", final_val, result);
 	return 0;
-
 }
