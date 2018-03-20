@@ -10,7 +10,7 @@ int main(void)
 	
 
 	if(num%2)
-		printf("입력된 수는 홀수 \n");
+		printf("%+입력된 수는 홀수 \n");
 	else
 		printf("입력된 수는 짝수 \n");
 
