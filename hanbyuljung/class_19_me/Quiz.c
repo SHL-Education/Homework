@@ -121,8 +121,8 @@ int main(int argc , char **argv)
 	int len = sizeof(arr) / sizeof(int);
 	char read_buf[1024];
 
-	fd = open(argv[1] , O_RDWR | O_CREAT | O_APPEND ,0644);
-	fd2 = open(argv[1] ,O_RDONLY | O_TRUNC,0644);
+	fd = open(argv[1] , O_RDWR | O_CREAT | O_TRUNC ,0644);
+//	fd2 = open(argv[1] ,O_RDONLY | O_TRUNC,0644);
 
 	rand_non_same(arr);
 	print(arr, len);
@@ -148,7 +148,10 @@ int main(int argc , char **argv)
 	sprintf(read_buf,"\n 짝수의 합 = %d \n", even);
 	write(fd, read_buf, strlen(read_buf));
 	
-	fread = read(fd2, buf, sizeof(buf));
+	lseek(fd , 0, SEEK_SET);
+
+	fread = read(fd, buf, sizeof(buf));
+//	fread = read(fd2, buf, sizeof(buf));
 	write(1 , buf ,fread);
 
 	close(fd);
