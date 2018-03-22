@@ -15,7 +15,7 @@ int file_size(int fd)
 	int fsize, old;
 	old = lseek(fd,0,SEEK_CUR);
 	fsize = lseek(fd, 0, SEEK_END);
-	// pos가 위에서 한번 계산하면서 위치기 뒤로 set이 되기에 old로 다시 set해준다.
+	// pos가 위에서 한번 계산하면서 위치가 뒤로 set이 되기에 old로 다시 set해준다.
 	lseek(fd, old, SEEK_SET);
 	return fsize;
 }
