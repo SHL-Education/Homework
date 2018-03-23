@@ -31,6 +31,8 @@ int main(int argc, char **argv)
 		perm[0] = 's';
 	if(S_ISCHR(buf.st_mode))
 		perm[0] = 'c';
+	if(S_ISLNK(buf.st_mode))
+		perm[0]=  'i';
 	if(S_ISBLK(buf.st_mode))
 		perm[0] = 'b';
 	for(i= 0; i<9; i++)
