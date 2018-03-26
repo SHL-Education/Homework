@@ -17,7 +17,6 @@ int main(int argc, char **argv)
 	int cnt=0;
 	int array[32]={0};
 	char buf2[32];
-	char buf3[32]="\n";
 
 	fd = open("a.txt",O_RDONLY);
 	fd2= open("b.txt",O_CREAT | O_WRONLY ,0644);
@@ -37,7 +36,6 @@ int main(int argc, char **argv)
 				printf("array= %d \n",array[i]);
 				sprintf(buf2,"%d",array[i]);
 				write(fd2,buf2,strlen(buf2));
-				write(fd2,buf3,strlen(buf3));
 				}
 
 	}
