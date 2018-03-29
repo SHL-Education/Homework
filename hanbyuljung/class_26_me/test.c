@@ -10,7 +10,7 @@ void gogogo(int voidv)
 }
 
 int main(void)
-{
+{	// 시그널 종류 , 행동지침
 	signal(SIGINT, gogogo);
 	for(;;)
 	{
