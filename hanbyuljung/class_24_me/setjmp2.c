@@ -4,6 +4,7 @@
 #include<fcntl.h>
 
 jmp_buf env;
+jmp_buf gogo;
 
 void test(void)
 {
@@ -14,13 +15,31 @@ void test(void)
 	printf("call test(\n");
 
 }
+void test2(void)
+{
+	longjmp(gogo,2);
+	printf("call test2!\n");
+}
 
 int main(void)
 {
 	int ret;
+
 	if((ret = setjmp(env)) == 0)
 		test();
-	else if(ret >0)
+	else if(ret >0){
 		printf("error\n");
+
+		//ret = setjmp(gogo);
+		//printf("error22\n");
+		//sleep(1);
+		//test2();
+		//longjmp(gogo,2);
+	}
+	//if(ret == 2){
+//		printf("jump\n");
+//		exit(0);
+//	}
 	return 0;
+		
 }

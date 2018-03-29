@@ -26,6 +26,7 @@ int main(int argc, char **argv)
 		perror("open()");
 		exit(-1);
 	}
+	// while 문에는 1byte를 읽으니까 무언가 들어있으면 1 또는  없으면 0이 나온다
 	while(read(fd,&ch,1))
 	{
 		cnt++;

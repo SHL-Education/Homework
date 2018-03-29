@@ -14,9 +14,9 @@ int main(int argc, char **argv)
 //		printf("Usage:mycat filename\n");
 //		exit(-1);
 //	}
-//	fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC,0644);
+	fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC,0644);
 	ret = read(0,buf,sizeof(buf));
 	write(1, buf, ret);
-//	close(fd);
+	close(fd);
 	return 0;
 }
