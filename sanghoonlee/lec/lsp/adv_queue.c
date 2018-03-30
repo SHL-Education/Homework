@@ -103,6 +103,8 @@ void dequeue(manager *m, int data)
 		{
 			m->head[i].data = 0;
 			m->head[i - 1].idx = m->head[i].idx;
+			// 해제 된 녀석들만 -1
+			m->head[i].idx = -1;
 			m->free_num++;
 			m->full_num--;
 			m->free[m->total_free++] = i;
@@ -185,7 +187,7 @@ int main(void)
 	init_data(data, size);
 	print_arr(data, size);
 
-	manager *m = (manager *)malloc(alloc_size);
+	manager *m = (manager *)malloc(alloc_size * 4);
 	init_manager(m, alloc_size);
 	printf("Before Enqueue\n");
 	print_manager_info(m);
