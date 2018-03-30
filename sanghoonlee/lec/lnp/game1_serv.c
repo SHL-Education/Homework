@@ -150,9 +150,21 @@ int main(int argc, char **argv)
 			wait(&status);
 		else
 		{
+			int data;
 			char buf[32] = "숫자를 맞춰봐!\n";
+
+			srand(time(NULL));
 			clnt_sock = accept(serv_sock, (sap)&clnt_addr, &clnt_addr_size);
-			write(clnt_sock, buf, strlen(buf));
+			make_game(&data);
+
+			for(;;)
+			{
+				write(clnt_sock, buf, strlen(buf));
+				glob_cnt++;
+				if(glob_cnt > 10)
+					break;
+			}
+
 			close(clnt_sock);
 #if 0
 			opnd_cnt = 0;
