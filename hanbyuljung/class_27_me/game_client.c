@@ -4,6 +4,7 @@
 #include<unistd.h>
 #include<arpa/inet.h>
 #include<sys/socket.h>
+#include<fcntl.h>
 
 
 typedef struct sockaddr_in si;
@@ -23,7 +24,8 @@ void err_handler(char *msg)
 
 int main(int argc, char **argv)
 {
-	int i , sock, result, opnd_cnt, nread;
+	int i , sock, result,idx, nread;
+	int str_len = 0;
 	char opmsg[BUF_SIZE]= {0};
 	char buf[BUF_SIZE] = {0};
 	si serv_addr;
@@ -45,28 +47,33 @@ int main(int argc, char **argv)
 	if(connect(sock, (sap)&serv_addr, sizeof(serv_addr)) == -1)
 		err_handler("connect_) error");
 	else
-		puts("Connected.....");
-	fputs("Operand Cnt: ", stdout);
-	scanf("%d", &opnd_cnt);
+		puts("start button is 1, exit q");
 
-	opmsg[0] = (char)opnd_cnt;
-	for(i = 0; i<opnd_cnt ; i++)
+	//fcntl(sock, F_SETFL, O_NONBLOCK);
+
+	for(;;)
 	{
-		printf("Operand %d: ", i+1);
-		scanf("%d", (int *)&opmsg[i * OPSZ +1]);
-	}
-	fgetc(stdin);
-	fputs("Operator: ", stdout);
-	scanf("%c", &opmsg[opnd_cnt *OPSZ +1]);
-	write(sock ,opmsg, opnd_cnt *OPSZ +2);
-	read(sock , &result, RLT_SIZE);
-	printf("Operation result : %d \n", result);
+		// get은 write
+		fgets(buf, BUF_SIZE, stdin);
+		//read(1, buf, BUF_SIZE -1);
+		
+		
+		if(!strcmp(buf, "q\n") || !strcmp(buf, "g\n"))
+			break;
+		
+		write(sock, buf, strlen(buf));
+		// read에서 블럭이 걸려버린다... 이걸 풀어주어야한다...
+		nread = read(sock, buf, BUF_SIZE -1);
 
-//	for(;;)
-//	{
-//		nread = read(sock, buf, BUF_SIZE);
-//		write(1, buf, nread);
-//	}
+		if(nread == -1)
+			err_handler("read() error!");
+
+		//write(1, buf, strlen(buf));
+		printf("msg from serv: %s", buf);
+		// put은 read
+		write(1, buf, strlen(buf));
+		fputs("Input msg(q to quit) : \n", stdout);
+	}
 
 	close(sock);
 	return 0;

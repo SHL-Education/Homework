@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	addr2.sin_addr.s_addr = htonl(0x12345678);
 	
 	// inet_ntoa는 Network to Address 이다. 
-	// str을 대입안해도 왜 나오냐면 컴파일러가 개똑똑해서..
+	// str을 대입안해도 왜 나오냐면 컴파일러가 똑똑해서..
 	str = inet_ntoa(addr1.sin_addr);
 	strcpy(str_arr,str);
 	printf("Not 1: %s\n", str);
