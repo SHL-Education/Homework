@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -50,6 +51,14 @@ int main(int argc, char **argv)
 	for(;;)
 	{
 		nread = read(sock, buf, BUF_SIZE);
+		buf[nread] = '\0';
+		write(1, buf, nread);
+		nread = read(0, buf, sizeof(buf));
+		buf[nread] = '\0';
+		write(sock, buf, nread);
+		// 성공 및 종료 조건 코드 추가
+		nread = read(sock, buf, BUF_SIZE);
+		buf[nread] = '\0';
 		write(1, buf, nread);
 	}
 

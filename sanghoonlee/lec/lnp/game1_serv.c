@@ -26,6 +26,7 @@ void sig_handler(int signo)
 {
 	printf("Time Over\n");
 	glob_cnt++;
+	alarm(3);
 }
 
 void make_game(int *data)
@@ -41,17 +42,23 @@ bool check_correct(int data, int cmp)
 		return false;
 }
 
-void start_game(int data)
+void start_game(int data, int sock)
 {
 	char buf[32] = {0};
+	char msg[128] = {0};
+	char out[64] = "숫자를 맞춰봐: ";
 	bool fin;
-	int i, cmp;
+	int i, cmp, nr;
+
+	signal(SIGALRM, sig_handler);
 
 	for(;;)
 	{
-		signal(SIGALRM, sig_handler);
-		alarm(1);
-		read(0, buf, sizeof(buf));
+		write(sock, out, strlen(out));
+		alarm(3);
+		//read(0, buf, sizeof(buf));
+		nr = read(sock, buf, sizeof(buf));
+		buf[nr - 1] = '\0';
 		alarm(0);
 		cmp = atoi(buf);
 
@@ -65,9 +72,19 @@ void start_game(int data)
 		{
 			glob_cnt++;
 			if(data > cmp)
-				printf("%d 보다 크다\n", cmp);
+			{
+				sprintf(msg, "%d 보다 크다\n", cmp);
+				msg[strlen(msg)] = '\0';
+				write(sock, msg, strlen(msg));
+				//printf("%d 보다 크다\n", cmp);
+			}
 			else
-				printf("%d 보다 작다\n", cmp);
+			{
+				sprintf(msg, "%d 보다 작다\n", cmp);
+				msg[strlen(msg)] = '\0';
+				write(sock, msg, strlen(msg));
+				//printf("%d 보다 작다\n", cmp);
+			}
 		}
 	}
 }
@@ -79,32 +96,18 @@ void err_handler(char *msg)
 	exit(1);
 }
 
-int calculate(int opnum, int *opnds, char op)
+void child_proc(int sig)
 {
-	int result = opnds[0], i;
-
-	switch(op)
-	{
-		case '+':
-			for(i = 1; i < opnum; i++)
-				result += opnds[i];
-			break;
-		case '-':
-			for(i = 1; i < opnum; i++)
-				result -= opnds[i];
-			break;
-		case '*':
-			for(i = 1; i < opnum; i++)
-				result *= opnds[i];
-			break;
-	}
-
-	return result;
+	pid_t pid;
+	int status;
+	pid = waitpid(-1, &status, WNOHANG);
+	printf("Removed proc id: %d\n", pid);
 }
 
 int main(int argc, char **argv)
 {
-	pid_t pid[5] = {0};
+	//pid_t pid[5] = {0};
+	pid_t pid;
 	int status;
 
 	int serv_sock, clnt_sock;
@@ -116,11 +119,19 @@ int main(int argc, char **argv)
 	si serv_addr, clnt_addr;
 	socklen_t clnt_addr_size;
 
+	struct sigaction act;
+	int state;
+
 	if(argc != 2)
 	{
 		printf("use: %s <port>\n", argv[0]);
 		exit(1);
 	}
+
+	act.sa_handler = child_proc;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	state = sigaction(SIGCHLD, &act, 0);
 
 	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
 
@@ -138,34 +149,41 @@ int main(int argc, char **argv)
 	if(listen(serv_sock, 5) == -1)
 		err_handler("listen() error");
 
-	clnt_addr_size = sizeof(clnt_addr);
-
-	//signal();
-
 	for(i = 0; i < 5; i++)
 	{
-		pid[i] = fork();
+		clnt_addr_size = sizeof(clnt_addr);
+		clnt_sock = accept(serv_sock, (sap)&clnt_addr, &clnt_addr_size);
 
-		if(pid[i] > 0)
-			wait(&status);
-		else
+		pid = fork();
+
+		if(pid == 0)
 		{
 			int data;
-			char buf[32] = "숫자를 맞춰봐!\n";
 
 			srand(time(NULL));
-			clnt_sock = accept(serv_sock, (sap)&clnt_addr, &clnt_addr_size);
-			make_game(&data);
 
+			close(serv_sock);
+
+			make_game(&data);
+			printf("data = %d\n", data);
+			start_game(data, clnt_sock);
+
+			printf("Client Disconnected\n");
+
+#if 0
 			for(;;)
 			{
-				write(clnt_sock, buf, strlen(buf));
+				//write(clnt_sock, buf, strlen(buf));
+
 				glob_cnt++;
 				if(glob_cnt > 10)
 					break;
 			}
+#endif
 
 			close(clnt_sock);
+
+			return 0;
 #if 0
 			opnd_cnt = 0;
 			clnt_sock = accept(serv_sock, (sap)&clnt_addr, &clnt_addr_size);
@@ -185,6 +203,8 @@ int main(int argc, char **argv)
 			close(clnt_sock);
 #endif
 		}
+		else
+			close(clnt_sock);
 
 	}
 #if 0
