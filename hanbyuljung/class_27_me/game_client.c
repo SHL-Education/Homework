@@ -39,17 +39,20 @@ int main(int argc, char **argv)
 	if(sock == -1)
 		err_handler("socket() error");
 
+//	if( fcntl( sock, F_SETFL, O_NONBLOCK) == -1 ) 
+//		 return -1;
+
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
 	serv_addr.sin_port = htons(atoi(argv[2]));
 
 	if(connect(sock, (sap)&serv_addr, sizeof(serv_addr)) == -1)
-		err_handler("connect_) error");
+		err_handler(" connect() error");
 	else
 		puts("start button is 1, exit q");
 
-	//fcntl(sock, F_SETFL, O_NONBLOCK);
+	fcntl(sock, F_SETFL, O_NONBLOCK);
 
 	for(;;)
 	{
@@ -63,13 +66,13 @@ int main(int argc, char **argv)
 		
 		write(sock, buf, strlen(buf));
 		// read에서 블럭이 걸려버린다... 이걸 풀어주어야한다...
-		nread = read(sock, buf, BUF_SIZE -1);
+		nread = read(sock, buf, sizeof(buf));
 
-		if(nread == -1)
-			err_handler("read() error!");
+		//if(nread == -1)
+		//	err_handler("read() error!");
 
 		//write(1, buf, strlen(buf));
-		printf("msg from serv: %s", buf);
+		printf("msg from serv: %s\n", buf);
 		// put은 read
 		write(1, buf, strlen(buf));
 		fputs("Input msg(q to quit) : \n", stdout);

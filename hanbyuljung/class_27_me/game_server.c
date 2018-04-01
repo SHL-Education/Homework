@@ -52,14 +52,13 @@ int game(int clnt_sock,int random)
 	int setnum;
 
 	//if(flag == 0){
-		char up[]="너 높다";
-		char down[] = "너 낮다";
+		char up[]="너 높다\n";
+		char down[] = "너 낮다\n";
 		char correct[]= "맞추셨습니다! 술 드세요!!!\n";
 		char start[] = "술게임을 시작합니다.\n내가 내는 번호를 맞춰 보세요!\n";
 
 		signal(SIGALRM, my_sig);
-
-		
+	
 		write(clnt_sock, start, sizeof(start));
 
 		int i=0;
@@ -71,6 +70,7 @@ int game(int clnt_sock,int random)
 	while(last_flag != 1){
 		
 		memset(&buf, 0 , BUF_SIZE);
+		
 		alarm(3);
 		read(clnt_sock, buf, sizeof(buf));
 		setnum = atoi(buf);
@@ -81,6 +81,7 @@ int game(int clnt_sock,int random)
 		write(clnt_sock, ret , sizeof(ret));
 		//setjmp(env);
 		if(setnum == random){
+			//alarm(3);
 			// 여기서 알람을 끄거나 마지막 부분에 끝난다고 해주어야함.
 			write(clnt_sock, correct, sizeof(start));
 			// 누가 1등인지 알아맞추는 함수를 만든다.
@@ -88,14 +89,16 @@ int game(int clnt_sock,int random)
 			// 그리고 꺼준다.
 			close(clnt_sock);
 		}
-		else if(setnum > random){	
-			write(clnt_sock, up, sizeof(start));
+		else if(setnum > random){
+			//alarm(3);	
+			write(clnt_sock, up, sizeof(up));
 		}
 		else if(setnum < random){
-			write(clnt_sock, down, sizeof(start));
+			//alarm(3);
+			write(clnt_sock, down, sizeof(down));
 		}
 		else
-			write(clnt_sock, "fuck" , BUF_SIZE);
+			write(clnt_sock, "awwwwwwww" , BUF_SIZE);
 		cnt++;
 	}
 	//카운트를 증가해 준다.
@@ -115,7 +118,7 @@ int main(int argc, char **argv)
 	socklen_t clnt_addr_size;
 
 	int random;
-	int cnt =0;
+	int bufnum =0;
 	int status;
 	char buf[1024];
 
@@ -150,7 +153,7 @@ int main(int argc, char **argv)
 ///////////////////////////////////////////////////////////////////////////////////////
 	// 여러명이 접속 할 수 있으니까 반복문으로 했다.??
 
-	//fcntl(serv_sock, F_SETFL, O_NONBLOCK);
+	
 
 	for(client=0;client<5;client++){
 		if((opnd[client]=fork())>0)
@@ -158,19 +161,22 @@ int main(int argc, char **argv)
 			client++;
 			waitpid(-1,&status,0);
 		}
-		else if(opnd[client]==0){
+		else if(opnd[client] == 0){
 			clnt_sock = accept(serv_sock, (sap)&clnt_addr, &clnt_addr_size);
 			//fcntl(clnt_sock, F_SETFL, O_NONBLOCK);
 			//fcntl(serv_sock, F_SETFL, O_NONBLOCK);
 
 			recv_len = read(clnt_sock, buf, sizeof(buf)); // 읽을 갯수를 받음.
-			
+			bufnum = atoi(buf);
 			// 게임 함수가 return을 up 인지 down 인지 맞는지 리턴한다.
 			// opnd_cnt는 받은 내용임...
-			result = game(clnt_sock,random);
+			if(bufnum == 1){
+				fcntl(serv_sock, F_SETFL, O_NONBLOCK);
+				result = game(clnt_sock,random);
+			}
 			//write(clnt_sock, &result, sizeof(result));
-			if(last_flag == 1){
-				printf("끝났습니다!!");
+			else if(last_flag == 1){
+				printf("끝났습니다!!\n");
 				close(clnt_sock);	
 			}	
 			
