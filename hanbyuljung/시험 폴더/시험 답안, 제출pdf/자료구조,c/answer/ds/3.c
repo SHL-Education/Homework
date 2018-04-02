@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define NUM			100
+#define NUM		100
 #define PAGENUM		6
 
 typedef struct __mem_man
