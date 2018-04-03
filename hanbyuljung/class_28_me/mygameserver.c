@@ -213,7 +213,7 @@ int main(int argc , char **argv)
 		pthread_detach(t_id);
 		printf("Connected Client IP: %s\n", inet_ntoa(clnt_addr.sin_addr));
 	}
-	close(clnt_sock);
+	//close(clnt_sock);
 	close(serv_sock);
 
 	return 0;
