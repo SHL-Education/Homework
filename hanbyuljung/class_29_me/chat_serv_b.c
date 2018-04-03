@@ -11,12 +11,15 @@
 
 #define BUF_SIZE		128
 #define MAX_CLNT		256
+#define SET_TIMES		6
 
 typedef struct timeval	tv;
 typedef struct sockaddr_in		si;
 typedef struct sockaddr *		sp;
 
+int cnt[MAX_CLNT];
 int clnt_cnt = 0;
+int idx;
 int clnt_socks[MAX_CLNT];
 pthread_mutex_t mtx;
 
@@ -45,6 +48,18 @@ void get_runtime(tv start, tv end)
 	printf("runtime = %lf sec\n", end.tv_usec / 1000000.0);
 }
 
+double get_runtimeCalulate(tv start, tv end)
+{
+	double s;
+	end.tv_usec = end.tv_usec - start.tv_usec;
+	end.tv_sec = end.tv_sec - start.tv_sec;
+	end.tv_usec += end.tv_sec * 1000000;
+	s=SET_TIMES/end.tv_usec;
+	//printf("runtime = %lf sec\n", end.tv_usec / 1000000.0);
+	return s;
+}
+
+
 void send_msg(char *msg, int len)
 {
 	int i;
@@ -56,25 +71,62 @@ void send_msg(char *msg, int len)
 
 	pthread_mutex_unlock(&mtx);
 }
+void proc_msg(char *msg, int len, int k)
+{
+	int i;
+	//int cmp = atoi(msg);
+	char smsg[256] = {0};
+	char clnt_count[BUF_SIZE];
+
+	pthread_mutex_lock(&mtx);
+
+	
+	//ct->send_client[clnt_cnt-1] += 1;
+	//sprintf(clnt_count,"[<말한 횟수(1.6):%d>]\n",ct->send_client[clnt_cnt-1]);
+	//write(clnt_socks[clnt_cnt-1], clnt_count, sizeof(clnt_count));
+
+	cnt[k] += 1;
+
+	sprintf(clnt_count,"[<말한 횟수(1.6):%d>]\n",cnt[k]);
+	write(clnt_socks[k], clnt_count, strlen(smsg));
+
+/*
+	if(data[k] > cmp)
+		sprintf(smsg, "greater than %d\n", cmp);
+	else if(data[k] < cmp)
+		sprintf(smsg, "less than %d\n", cmp);
+	else
+	{
+		sprintf(clnt_count,"[<말한 횟수(1.6):%d>]\n",cnt[k]);
+		write(clnt_socks[k], clnt_count, strlen(smsg));
+	}
+*/
+	pthread_mutex_unlock(&mtx);
+}
+	
+
 void *clnt_handler(void *arg)
 {
 	int clnt_sock = *((int *)arg);
 	int str_len = 0, i;
 	char msg[BUF_SIZE];
 	char clnt_count[BUF_SIZE];
+	i = clnt_cnt - 1;
 	
 	while((str_len = read(clnt_sock , msg, sizeof(msg))) != 0){
 		// 현재 말한 횟수 세는것은 한명만 된다.
+
 		ct->send_client[clnt_cnt-1] += 1;
 		sprintf(clnt_count,"[<말한 횟수(1.6):%d>]\n",ct->send_client[clnt_cnt-1]);
 		write(clnt_socks[clnt_cnt-1], clnt_count, sizeof(clnt_count));
+
+		proc_msg(msg, str_len, i);
 		send_msg(msg, str_len);
 	}
 
 	pthread_mutex_lock(&mtx);
 	
-	
-
+	// 여기가 뭐하기 위한 건지 정확히 모르겠다.
 	for(i = 0; i<clnt_cnt; i++){
 		if(clnt_sock == clnt_socks[i])
 		{
