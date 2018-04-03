@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <sys/time.h>
-#include <unistd.h>
-
-typedef struct timeval	tv;
+#include "load_test.h"
 
 void get_runtime(tv start, tv end)
 {
@@ -13,6 +9,7 @@ void get_runtime(tv start, tv end)
 	printf("runtime = %lf sec\n", end.tv_usec / 1000000.0);
 }
 
+#if DEBUG
 int main(void)
 {
 	unsigned int i, cnt = 0;
@@ -29,3 +26,4 @@ int main(void)
 
 	return 0;
 }
+#endif
