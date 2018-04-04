@@ -6,6 +6,6 @@
 
 typedef struct timeval	tv;
 
-void get_runtime(tv, tv);
+double get_runtime(tv, tv);
 
 #endif
