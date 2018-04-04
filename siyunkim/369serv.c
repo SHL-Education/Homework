@@ -24,6 +24,7 @@ int thread_pid[MAX_CLNT];
 int idx;
 int cnt[MAX_CLNT];
 int lum;
+int totalcnt=0;
 pthread_mutex_t mtx; 
 
 void err_handler(char *msg)
@@ -43,7 +44,10 @@ void sig_handler(int signo)
 
 	for(i = 0; i < clnt_cnt; i++)
 		if(thread_pid[i] == getpid())
+			{
 			cnt[i] += 1;
+			totalcnt +=1;
+			}
 
 	pthread_mutex_unlock(&mtx);
 
@@ -64,8 +68,11 @@ void proc_msg(Data *data, int k)
 	sprintf(numc,"%d",dat);
 
 	pthread_mutex_lock(&mtx);
-
+	totalcnt +=1;
 	cnt[k] += 1;
+	sprintf(smsg,"You Player[%d]\n",k);
+	write(clnt_socks[k],smsg,strlen(smsg));
+	
 	for(i=0;numc[i];i++)
 	{
 		if(numc[i] =='3' || numc[i] == '6' || numc[i] == '9')
@@ -100,7 +107,8 @@ void proc_msg(Data *data, int k)
 	else
 	{
 		strcpy(smsg, "Next turn\n");
-		printf("cnt = %d\n", cnt[k]);
+		printf("player[%d]cnt = %d\n",k, cnt[k]);
+		printf("totalcnt = %d\n",totalcnt);
 	}
 	}
 	strcat(smsg, "Input Number: \n");
@@ -129,7 +137,6 @@ void *clnt_handler(void *arg)
 	printf("i = %d\n", i);
 	write(clnt_socks[i], pattern, strlen(pattern));
 	pthread_mutex_unlock(&mtx);
-
 	alarm(3);
 
 	while(read(clnt_sock,data,sizeof(Data)) !=0)

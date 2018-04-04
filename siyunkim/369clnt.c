@@ -66,13 +66,13 @@ void *recv_msg(void *arg)
 	Data *data;
 	data = (Data *)malloc(sizeof(Data));
 
+	write(1,"369game start\n",15);
 	for(;;)
 	{
 		str_len = read(sock,data->ms, BUF_SIZE - 1);
 
 		data->ms[str_len] = 0;
 		fputs(data->ms,stdout);
-		fputs(data->signal,stdout);
 	}
 
 	return NULL;
