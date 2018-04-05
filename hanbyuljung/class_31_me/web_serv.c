@@ -121,7 +121,7 @@ void *request_handler(void *arg)
 	fclose(clnt_read);
 	send_data(clnt_write, ct, file_name);
 }
-	int main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int serv_sock, clnt_sock;
 	si serv_addr, clnt_addr;
