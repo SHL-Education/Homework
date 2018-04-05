@@ -1,4 +1,3 @@
-#include "common.h"
 #include "init_sock.h"
 
 int main(int argc, char **argv)
