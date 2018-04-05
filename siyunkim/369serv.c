@@ -83,17 +83,21 @@ void proc_msg(Data *data, int k)
 
 	if(ncnt != 0)
 	{
-		printf("cnt3 =%d\n",ncnt);
-		printf("dat= %d\n",dat);
+	//	printf("cnt3 =%d\n",ncnt);
+	//	printf("dat= %d\n",dat);
 		lum=atoi(data->signal);
-		printf("lum = %d\n",lum);
+		printf("369 = %d\n",lum);
 		if(lum == ncnt)
 		{
 			sprintf(smsg,"Next turn %d\n",cmp);
+		printf("player[%d]cnt = %d\n",k, cnt[k]);
+		printf("totalcnt = %d\n",totalcnt);
 		}
 		else if(lum != ncnt)
 		{
 			sprintf(smsg,"youloose %d\n",cmp);
+		printf("player[%d]cnt = %d\n",k, cnt[k]);
+		printf("totalcnt = %d\n",totalcnt);
 		}
 
 	}
@@ -101,9 +105,15 @@ void proc_msg(Data *data, int k)
 	{
 
 	if(dat > cmp){
-		sprintf(smsg, "youloose %d\n", cmp);}
+		sprintf(smsg, "youloose %d\n", cmp);
+		printf("player[%d]cnt = %d\n",k, cnt[k]);
+		printf("totalcnt = %d\n",totalcnt);
+		}
 	else if(dat < cmp){
-		sprintf(smsg, "you loose %d\n", cmp);}
+		sprintf(smsg, "you loose %d\n", cmp);
+		printf("player[%d]cnt = %d\n",k, cnt[k]);
+		printf("totalcnt = %d\n",totalcnt);
+		}
 	else
 	{
 		strcpy(smsg, "Next turn\n");
