@@ -1,0 +1,6 @@
+gcc -o load_test_serv load_test_serv.c load_test.c
+gcc -o load_test_clnt load_test_clnt.c
+
+gcc -o chat_serv load_test.c chat_serv.c
+gcc -o chat_clnt chat_clnt.c -DPASSIVE
+gcc -o chat_clnt chat_clnt.c -DATTACK
