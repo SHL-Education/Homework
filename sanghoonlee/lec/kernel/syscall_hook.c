@@ -29,7 +29,7 @@ asmlinkage long (* orig_call)(const char __user *, int, umode_t);
 
 asmlinkage long sys_our_open(const char __user *filename, int flags, umode_t mode)
 {
-	printk("<0>Open SYstem Call\n");
+	printk("<0>Open System Call\n");
 	return (orig_call(filename, flags, mode));
 }
 
@@ -68,7 +68,7 @@ int syscall_hooking_init(void)
 
 void syscall_hooking_cleanup(void)
 {
-#if 0
+#if 1
 	unsigned long cr0 = read_cr0();
 	write_cr0(cr0 & ~0x00010000);
 	sys_call_table[__NR_open] = orig_call;
