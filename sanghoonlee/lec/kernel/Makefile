@@ -1,4 +1,5 @@
-obj-m		:= monitor_hack.o
+#obj-m		:= monitor_hack.o
+obj-m		:= current_task.c
 
 KERNEL_DIR	:= /lib/modules/$(shell uname -r)/build
 PWD			:= $(shell pwd)

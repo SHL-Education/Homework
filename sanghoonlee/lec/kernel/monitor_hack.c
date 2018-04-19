@@ -9,6 +9,8 @@
 #include <asm/segment.h>
 #include <linux/buffer_head.h>
 
+#include <asm/current.h>
+
 unsigned long **sys_call_table;
 
 unsigned long **locate_sys_call_table(void)
@@ -82,11 +84,14 @@ asmlinkage long sys_our_open(const char __user *filename, int flags, umode_t mod
 
 	ret = orig_call(filename, flags, mode);
 	printk(KERN_DEBUG "file %s has opened with mode %d\n", filename, mode);
+	printk(KERN_DEBUG "current task = 0x%x\n", current);
+#if 0
 	filp = file_open("/proc/self/fd/1", O_WRONLY, 0644);
 
 	write_ret = file_write(filp, 0, "너 해킹 당했어 멍청아! 그것도 실력이라고 달고 사냐 ? ㅋㅋㅋ\n", 84);
 
 	file_close(filp);
+#endif
 
 	return ret;
 }
@@ -112,9 +117,12 @@ int syscall_hooking_init(void)
 
 	printk("<0>sys_call_table is at[%p]\n", sys_call_table);
 
+	// CR0 레지스터를 읽어옴
 	cr0 = read_cr0();
+	// Page 쓰기를 허용함
 	write_cr0(cr0 & ~0x00010000);
 
+	/* set_memory_rw 라는 심볼을 찾아와서 fixed_set_memory_rw 에 설정함 */
 	fixed_set_memory_rw = (void *)kallsyms_lookup_name("set_memory_rw");
 	if(!fixed_set_memory_rw)
 	{
@@ -122,6 +130,7 @@ int syscall_hooking_init(void)
 		return 0;
 	}
 
+	/* 시스템 콜 테이블이 위치한 물리 메모리에 읽고 쓰기 권한 주기 */
 	fixed_set_memory_rw(PAGE_ALIGN((unsigned long)sys_call_table) - PAGE_SIZE, 3);
 
 	orig_call = (void *)sys_call_table[__NR_open];
