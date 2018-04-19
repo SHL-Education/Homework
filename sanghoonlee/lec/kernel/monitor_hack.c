@@ -1,148 +1,147 @@
 // Ubuntu 16.04.1
 #include <linux/kernel.h>
-#include <asm/unistd.h>
-#include <linux/hugetlb.h>
-
 #include <linux/module.h>
-#include <linux/init.h>
-#include <linux/types.h>
-#include <asm/uaccess.h>
-#include <asm/cacheflush.h>
+#include <asm/unistd.h>
 #include <linux/syscalls.h>
-#include <linux/delay.h>    // loops_per_jiffy
+#include <linux/hugetlb.h>
 
 #include <linux/fs.h>
 #include <asm/segment.h>
 #include <linux/buffer_head.h>
 
-#define CR0_WP 0x00010000   // Write Protect Bit (CR0:16)
+unsigned long **sys_call_table;
 
-MODULE_LICENSE("GPL");
+unsigned long **locate_sys_call_table(void)
+{
+	unsigned long tmp;
+	unsigned long *p;
+	unsigned long **sys_table;
 
-void **sys_call_table;
-unsigned long **find_sys_call_table(void);
+	for(tmp = 0xffffffff81000000; tmp < 0xffffffffa2000000; tmp += sizeof(void *))
+	{
+		p = (unsigned long *)tmp;
+		if(p[__NR_close] == (unsigned long)sys_close)
+		{
+			sys_table = (unsigned long **)p;
+			return &sys_table[0];
+		}
+	}
 
-long (*orig_sys_open)(const char __user *filename, int flags, int mode);
-
-unsigned long **find_sys_call_table() {
-
-        unsigned long ptr;
-        unsigned long *p;
-
-        for (ptr = (unsigned long)sys_close;
-                ptr < (unsigned long)&loops_per_jiffy;
-                ptr += sizeof(void *)) {
-
-                p = (unsigned long *)ptr;
-
-                if (p[__NR_close] == (unsigned long)sys_close) {
-                        printk(KERN_DEBUG "Found the sys_call_table!!!\n");
-                        return (unsigned long **)p;
-                }
-        }
-
-        return NULL;
+	return NULL;
 }
 
-int file_write(struct file *file, unsigned long long offset, unsigned char *data, unsigned int size)
+int file_write(struct file *file, unsigned long long offset,
+			unsigned char *data, unsigned int size)
 {
-        mm_segment_t oldfs;
-        int ret;
+	mm_segment_t oldfs;
+	int ret;
 
-        oldfs = get_fs();
-        set_fs(get_ds());
+	oldfs = get_fs();
+	set_fs(get_ds());
 
-        ret = vfs_write(file, data, size, &offset);
+	ret = vfs_write(file, data, size, &offset);
 
-        set_fs(oldfs);
+	set_fs(oldfs);
 
-        return ret;
+	return ret;
 }
 
 struct file *file_open(const char *filename, int flags, int mode)
 {
-        struct file *filp = NULL;
-        mm_segment_t oldfs;
-        int err = 0;
+	struct file *filp = NULL;
+	mm_segment_t oldfs;
+	int err = 0;
 
-        oldfs = get_fs();
-        set_fs(get_ds());
+	oldfs = get_fs();
+	set_fs(get_ds());
 
-        filp = filp_open(filename, flags, mode);
-        set_fs(oldfs);
+	filp = filp_open(filename, flags, mode);
+	set_fs(oldfs);
 
-        if(IS_ERR(filp))
-        {
-				err = PTR_ERR(filp);
-				return NULL;
-		}
+	if(IS_ERR(filp))
+	{
+		err = PTR_ERR(filp);
+		return NULL;
+	}
 
-		return filp;
+	return filp;
 }
 
-long my_sys_open(const char __user *filename, int flags, int mode) {
-		long ret;
-		int write_ret;
-		struct file *filp = NULL;
-
-		ret = orig_sys_open(filename, flags, mode);
-		printk(KERN_DEBUG "file %s has been opened with mode %d\n", filename, mode);
-
-		filp = file_open("/proc/self/fd/1", O_WRONLY, 0644);
-
-		write_ret = file_write(filp, 0, "너 해킹 당했어 멍청아 ㅋ\n그것도 실력이라고 달고 사냐 ?", 20);
-
-		return ret;
+void file_close(struct file *file)
+{
+	filp_close(file, NULL);
 }
+
+asmlinkage long (* orig_call)(const char __user *, int, umode_t);
+
+asmlinkage long sys_our_open(const char __user *filename, int flags, umode_t mode)
+{
+	long ret;
+	int write_ret;
+	struct file *filp = NULL;
+
+	ret = orig_call(filename, flags, mode);
+	printk(KERN_DEBUG "file %s has opened with mode %d\n", filename, mode);
+	filp = file_open("/proc/self/fd/1", O_WRONLY, 0644);
+
+	write_ret = file_write(filp, 0, "너 해킹 당했어 멍청아! 그것도 실력이라고 달고 사냐 ? ㅋㅋㅋ\n", 84);
+
+	file_close(filp);
+
+	return ret;
+}
+#if 0
+asmlinkage long sys_our_open(const char __user *filename, int flags, umode_t mode)
+{
+	printk("<0>Open System Call\n");
+	return (orig_call(filename, flags, mode));
+}
+#endif
 
 static int (*fixed_set_memory_rw)(unsigned long, int);
 
-static int __init syscall_init(void)
+int syscall_hooking_init(void)
 {
-		int ret;
-		unsigned long addr;
-		unsigned long cr0;
+	unsigned long cr0;
 
-		sys_call_table = (void **)find_sys_call_table();
+	if((sys_call_table = locate_sys_call_table()) == NULL)
+	{
+		printk("<0>Can't find sys_call_table\n");
+		return -1;
+	}
 
-		if (!sys_call_table) {
-				printk(KERN_DEBUG "Cannot find the system call address\n");
-				return -1;
-		}
+	printk("<0>sys_call_table is at[%p]\n", sys_call_table);
 
-		cr0 = read_cr0();
-		write_cr0(cr0 & ~CR0_WP);
+	cr0 = read_cr0();
+	write_cr0(cr0 & ~0x00010000);
 
-		fixed_set_memory_rw = (void *)kallsyms_lookup_name("set_memory_rw");
-		if(!fixed_set_memory_rw)
-		{   
-				printk("<0>Unable to find set_memory_rw symbol\n");   
-				return 0;
-		}
-
-		fixed_set_memory_rw(PAGE_ALIGN((unsigned long)sys_call_table) - PAGE_SIZE, 3);
-
-		//ret = set_memory_rw(PAGE_ALIGN(addr) - PAGE_SIZE, 3);
-
-		orig_sys_open = sys_call_table[__NR_open];
-		sys_call_table[__NR_open] = my_sys_open;
-
-		write_cr0(cr0);
-
+	fixed_set_memory_rw = (void *)kallsyms_lookup_name("set_memory_rw");
+	if(!fixed_set_memory_rw)
+	{
+		printk("<0>Unable to find set_memory_rw symbol\n");
 		return 0;
+	}
+
+	fixed_set_memory_rw(PAGE_ALIGN((unsigned long)sys_call_table) - PAGE_SIZE, 3);
+
+	orig_call = (void *)sys_call_table[__NR_open];
+	sys_call_table[__NR_open] = (void *)sys_our_open;
+	write_cr0(cr0);
+	printk("<0>Hooking Success!\n");
+	return 0;
 }
 
-static void __exit syscall_release(void)
+void syscall_hooking_cleanup(void)
 {
-		unsigned long cr0;
-
-		cr0 = read_cr0();
-		write_cr0(cr0 & ~CR0_WP);
-
-		sys_call_table[__NR_open] = orig_sys_open;
-
-		write_cr0(cr0);
+#if 1
+	unsigned long cr0 = read_cr0();
+	write_cr0(cr0 & ~0x00010000);
+	sys_call_table[__NR_open] = orig_call;
+	write_cr0(cr0);
+	printk("<0>Module Cleanup\n");
+#endif
 }
 
-module_init(syscall_init);
-module_exit(syscall_release);
+module_init(syscall_hooking_init);
+module_exit(syscall_hooking_cleanup);
+MODULE_LICENSE("GPL");
