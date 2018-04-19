@@ -1,4 +1,8 @@
 // Ubuntu 16.04.1
+#include <linux/kernel.h>
+#include <asm/unistd.h>
+#include <linux/hugetlb.h>
+
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/types.h>
@@ -15,7 +19,7 @@
 
 MODULE_LICENSE("GPL");
 
-void **syscall_table;
+void **sys_call_table;
 unsigned long **find_sys_call_table(void);
 
 long (*orig_sys_open)(const char __user *filename, int flags, int mode);
@@ -99,9 +103,9 @@ static int __init syscall_init(void)
 		unsigned long addr;
 		unsigned long cr0;
 
-		syscall_table = (void **)find_sys_call_table();
+		sys_call_table = (void **)find_sys_call_table();
 
-		if (!syscall_table) {
+		if (!sys_call_table) {
 				printk(KERN_DEBUG "Cannot find the system call address\n");
 				return -1;
 		}
@@ -120,8 +124,8 @@ static int __init syscall_init(void)
 
 		//ret = set_memory_rw(PAGE_ALIGN(addr) - PAGE_SIZE, 3);
 
-		orig_sys_open = syscall_table[__NR_open];
-		syscall_table[__NR_open] = my_sys_open;
+		orig_sys_open = sys_call_table[__NR_open];
+		sys_call_table[__NR_open] = my_sys_open;
 
 		write_cr0(cr0);
 
@@ -135,7 +139,7 @@ static void __exit syscall_release(void)
 		cr0 = read_cr0();
 		write_cr0(cr0 & ~CR0_WP);
 
-		syscall_table[__NR_open] = orig_sys_open;
+		sys_call_table[__NR_open] = orig_sys_open;
 
 		write_cr0(cr0);
 }
