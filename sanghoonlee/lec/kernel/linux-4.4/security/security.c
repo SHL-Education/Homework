@@ -114,6 +114,17 @@ int __init security_module_enable(const char *module)
 			P->hook.FUNC(__VA_ARGS__);		\
 	} while (0)
 
+/* security_hook_heads.task_create
+
+struct security_hook_list {
+    struct list_head        list;
+    struct list_head        *head;
+    union security_list_options hook;
+};
+
+FUNC = task_create
+
+*/
 #define call_int_hook(FUNC, IRC, ...) ({			\
 	int RC = IRC;						\
 	do {							\
@@ -846,6 +857,10 @@ int security_file_open(struct file *file, const struct cred *cred)
 
 int security_task_create(unsigned long clone_flags)
 {
+	/* clone_flags = SIGCHLD
+	list_head 형태로 구조체 내부 정보는 아래와 같음
+	next = security_hook_heads.task_create,
+	prev = security_hook_heads.task_create */
 	return call_int_hook(task_create, 0, clone_flags);
 }
 

@@ -2797,7 +2797,14 @@ static inline void threadgroup_change_end(struct task_struct *tsk)
 
 static inline void setup_thread_stack(struct task_struct *p, struct task_struct *org)
 {
+	/* 새로 만든 자식의 Kernel Stack 과
+	   부모의 Kernel Stack 을 동일하게 만들어줌 */
 	*task_thread_info(p) = *task_thread_info(org);
+	/* 새로 만든 자식의 Kernel Stack 을 들여다보면
+	   thread_info 가 있고 그 안에는 task 가 들어있다.
+	   여기에 현재 구동중인 task_struct 가 존재하는데
+	   현재 구동중인 Task 를 새로 만든 자식으로 지정하는 것임
+	   즉 current 매크로를 상기해보면 되겠다 */
 	task_thread_info(p)->task = p;
 }
 

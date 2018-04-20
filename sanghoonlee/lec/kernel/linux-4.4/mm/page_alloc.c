@@ -123,6 +123,7 @@ unsigned long totalcma_pages __read_mostly;
 unsigned long dirty_balance_reserve __read_mostly;
 
 int percpu_pagelist_fraction;
+/* GFP_BOOT_MASK = 0x01CFFF4F */
 gfp_t gfp_allowed_mask __read_mostly = GFP_BOOT_MASK;
 
 /*
@@ -3423,6 +3424,10 @@ struct page *alloc_kmem_pages_node(int nid, gfp_t gfp_mask, unsigned int order)
 {
 	struct page *page;
 
+	/* Lazy Buddy 알고리즘에 의해 16 KB 메모리 할당 받음
+	   그 외의 메모리 크기에 대해서 할당 받을 수도 있음
+	   현재는 task_struct 를 생성하므로 thread_info 와
+	   Kernel Stack 때문에 메모리를 할당 받는 것임 */
 	page = alloc_pages_node(nid, gfp_mask, order);
 	if (page && memcg_kmem_charge(page, gfp_mask, order) != 0) {
 		__free_pages(page, order);

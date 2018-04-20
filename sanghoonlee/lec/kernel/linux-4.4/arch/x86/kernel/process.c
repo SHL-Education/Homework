@@ -88,6 +88,7 @@ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
 	dst->thread.vm86 = NULL;
 #endif
 
+	/* 현재 부동 소수점과 관련된 내용들이 존재할 수도 있음 */
 	return fpu__copy(&dst->thread.fpu, &src->thread.fpu);
 }
 

@@ -574,10 +574,18 @@ static void avc_node_populate(struct avc_node *node, u32 ssid, u32 tsid, u16 tcl
 
 static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
 {
+#if 0	// struct avc_node
+	struct avc_node {
+    	struct avc_entry    ae;
+    	struct hlist_node   list; /* anchored in avc_cache->slots[i] */
+    	struct rcu_head     rhead;
+	};
+#endif
 	struct avc_node *node, *ret = NULL;
 	int hvalue;
 	struct hlist_head *head;
 
+	/* Hash Table 기반 검색 */
 	hvalue = avc_hash(ssid, tsid, tclass);
 	head = &avc_cache.slots[hvalue];
 	hlist_for_each_entry_rcu(node, head, list) {
@@ -1142,6 +1150,13 @@ inline int avc_has_perm_noaudit(u32 ssid, u32 tsid,
 int avc_has_perm(u32 ssid, u32 tsid, u16 tclass,
 		 u32 requested, struct common_audit_data *auditdata)
 {
+	/* struct av_decision {
+   		u32 allowed;
+   		u32 auditallow;
+    	u32 auditdeny;
+    	u32 seqno;
+    	u32 flags;
+	}; */
 	struct av_decision avd;
 	int rc, rc2;
 

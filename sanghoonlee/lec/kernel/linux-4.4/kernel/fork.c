@@ -161,9 +161,11 @@ void __weak arch_release_thread_info(struct thread_info *ti)
 static struct thread_info *alloc_thread_info_node(struct task_struct *tsk,
 						  int node)
 {
+	/* Lazy Buddy 에 의해 16K 메모리 할당 (Order = 2) */
 	struct page *page = alloc_kmem_pages_node(node, THREADINFO_GFP,
 						  THREAD_SIZE_ORDER);
 
+	/* 물리 메모리와 맵핑되어 있는 가상 주소를 반환함 */
 	return page ? page_address(page) : NULL;
 }
 
@@ -327,7 +329,11 @@ void set_task_stack_end_magic(struct task_struct *tsk)
 {
 	unsigned long *stackend;
 
+	/* Kernel Stack 의 끝을 기록함 */
 	stackend = end_of_stack(tsk);
+	/* Kernel stack 의 끝에 0x57AC6E9D 을 기록한다.
+	   이 값을 발견하면 Stack Overflow 공격으로
+	   운영체제를 공격했음을 감지할 수 있음 */
 	*stackend = STACK_END_MAGIC;	/* for overflow detection */
 }
 
@@ -338,18 +344,22 @@ static struct task_struct *dup_task_struct(struct task_struct *orig)
 	int node = tsk_fork_get_node(orig);
 	int err;
 
+	/* Slab 을 통해 새로 만든 task_struct 를 위한 메모리 할당 받음 */
 	tsk = alloc_task_struct_node(node);
 	if (!tsk)
 		return NULL;
 
+	/* Buddy 를 통해 thread_info 와 Kernel Stack 을 위한 메모리 할당 받음 */
 	ti = alloc_thread_info_node(tsk, node);
 	if (!ti)
 		goto free_tsk;
 
+	/* 본격적인 복사 = 부모 프로세스가 자식 프로세스에 복사됨 */
 	err = arch_dup_task_struct(tsk, orig);
 	if (err)
 		goto free_ti;
 
+	/* Kernel Stack 은 결국 thread_info 임 */
 	tsk->stack = ti;
 #ifdef CONFIG_SECCOMP
 	/*
@@ -362,11 +372,21 @@ static struct task_struct *dup_task_struct(struct task_struct *orig)
 #endif
 
 	setup_thread_stack(tsk, orig);
+	/* 현재 막 만든 따끈따끈한 Task 이므로 재 스케쥴링은 어차피 필요없다.
+	   이미 제어권이 자식 프로세스인 tsk 한테 주어져 있기 때문임 */
 	clear_user_return_notifier(tsk);
 	clear_tsk_need_resched(tsk);
+	/* 프로세스 = 프로그램이 메모리에 올라간 형태
+	   Stack Overflow 를 통해 root 권한을 획득한다던지
+	   악성코드를 실행시킬 수 있는데 Magic Number 를 설정하여
+	   Stack Overflow 공격을 감지할 수 있도록 설정해주는 부분임 */
 	set_task_stack_end_magic(tsk);
 
 #ifdef CONFIG_CC_STACKPROTECTOR
+	/* C 언어 학습할 때 기계어 분석을 했었음
+	   실수를 해서 다시 구동 시키면 sp, bp 값이 변동되었음
+	   이 값을 바꿔주는 녀석이 바로 이 코드임
+	   Random Stack 기법이라고 부름 */
 	tsk->stack_canary = get_random_int();
 #endif
 
@@ -1240,6 +1260,9 @@ init_task_pid(struct task_struct *task, enum pid_type type, struct pid *pid)
  * parts of the process environment (as per the clone
  * flags). The actual kick-off is left to the caller.
  */
+
+/* clone_flags = SIGCHLD, stack_start = 0, stack_size = 0,
+   child_tidptr = NULL, pid = NULL, trace = 0, tls = 0 */
 static struct task_struct *copy_process(unsigned long clone_flags,
 					unsigned long stack_start,
 					unsigned long stack_size,
@@ -1250,11 +1273,15 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 {
 	int retval;
 	struct task_struct *p;
+	/* CFS 스케쥴러와 관련된 인덱스 값 */
 	void *cgrp_ss_priv[CGROUP_CANFORK_COUNT] = {};
 
+	/* CLONE_NEWNS = 0x00020000
+	   CLONE_FS = 0x00000200 */
 	if ((clone_flags & (CLONE_NEWNS|CLONE_FS)) == (CLONE_NEWNS|CLONE_FS))
 		return ERR_PTR(-EINVAL);
 
+	/* CLONE_NEWUSER = 0x10000000 */
 	if ((clone_flags & (CLONE_NEWUSER|CLONE_FS)) == (CLONE_NEWUSER|CLONE_FS))
 		return ERR_PTR(-EINVAL);
 
@@ -1262,6 +1289,9 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * Thread groups must share signals as well, and detached threads
 	 * can only be started up within the thread group.
 	 */
+
+	/* CLONE_THREAD = 0x00010000
+	   CLONE_SIGHAND = 0x00000800 */
 	if ((clone_flags & CLONE_THREAD) && !(clone_flags & CLONE_SIGHAND))
 		return ERR_PTR(-EINVAL);
 
@@ -1270,6 +1300,8 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * thread groups also imply shared VM. Blocking this case allows
 	 * for various simplifications in other code.
 	 */
+
+	/* CLONE_VM = 0x00000100 */
 	if ((clone_flags & CLONE_SIGHAND) && !(clone_flags & CLONE_VM))
 		return ERR_PTR(-EINVAL);
 
@@ -1279,6 +1311,9 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * multi-rooted process trees, prevent global and container-inits
 	 * from creating siblings.
 	 */
+
+	/* CLONE_PARENT = 0x00008000
+	   SIGNAL_UNKILLABLE = 0x00000040 */
 	if ((clone_flags & CLONE_PARENT) &&
 				current->signal->flags & SIGNAL_UNKILLABLE)
 		return ERR_PTR(-EINVAL);
@@ -1287,6 +1322,8 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * If the new process will be in a different pid or user namespace
 	 * do not allow it to share a thread group with the forking task.
 	 */
+
+	/* CLONE_NEWPID = 0x20000000 */
 	if (clone_flags & CLONE_THREAD) {
 		if ((clone_flags & (CLONE_NEWUSER | CLONE_NEWPID)) ||
 		    (task_active_pid_ns(current) !=
@@ -1294,11 +1331,13 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 			return ERR_PTR(-EINVAL);
 	}
 
+	/* 프로세스에 대한 권한 체크 */
 	retval = security_task_create(clone_flags);
 	if (retval)
 		goto fork_out;
 
 	retval = -ENOMEM;
+	/* 현재 프로세스 복사하여 자식 프로세스를 생성함 */
 	p = dup_task_struct(current);
 	if (!p)
 		goto fork_out;
@@ -1320,6 +1359,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	}
 	current->flags &= ~PF_NPROC_EXCEEDED;
 
+	/* 프로세스의 보안과 관련된 부분을 복사함 */
 	retval = copy_creds(p, clone_flags);
 	if (retval < 0)
 		goto bad_fork_free;
@@ -1333,6 +1373,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	if (nr_threads >= max_threads)
 		goto bad_fork_cleanup_count;
 
+	/* Demand On Paging - Copy on Write */
 	delayacct_tsk_init(p);	/* Must remain after dup_task_struct() */
 	p->flags &= ~(PF_SUPERPRIV | PF_WQ_WORKER);
 	p->flags |= PF_FORKNOEXEC;
@@ -1417,6 +1458,8 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 #endif
 
 	/* Perform scheduler related setup. Assign this task to a CPU. */
+
+	/* 실제 CPU 에서 구동될 수 있도록 스케쥴러에 배치함 */
 	retval = sched_fork(clone_flags, p);
 	if (retval)
 		goto bad_fork_cleanup_policy;
@@ -1432,6 +1475,8 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	retval = copy_semundo(clone_flags, p);
 	if (retval)
 		goto bad_fork_cleanup_audit;
+
+	/* 기본적으로 열어야 하는 파일들 복사 */
 	retval = copy_files(clone_flags, p);
 	if (retval)
 		goto bad_fork_cleanup_semundo;
@@ -1444,6 +1489,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	retval = copy_signal(clone_flags, p);
 	if (retval)
 		goto bad_fork_cleanup_sighand;
+	/* task_struct->mm_struct 도 복사 */
 	retval = copy_mm(clone_flags, p);
 	if (retval)
 		goto bad_fork_cleanup_signal;
@@ -1458,6 +1504,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 		goto bad_fork_cleanup_io;
 
 	if (pid != &init_struct_pid) {
+		/* Task 에게 pid 값 할당 */
 		pid = alloc_pid(p->nsproxy->pid_ns_for_children);
 		if (IS_ERR(pid)) {
 			retval = PTR_ERR(pid);
@@ -1690,6 +1737,8 @@ struct task_struct *fork_idle(int cpu)
  * It copies the process, and if successful kick-starts
  * it and waits for it to finish using the VM if required.
  */
+
+/* SIGCHLD, 0, 0, NULL, NULL, 0 */
 long _do_fork(unsigned long clone_flags,
 	      unsigned long stack_start,
 	      unsigned long stack_size,
@@ -1707,18 +1756,30 @@ long _do_fork(unsigned long clone_flags,
 	 * requested, no event is reported; otherwise, report if the event
 	 * for the type of forking is enabled.
 	 */
+
+	/* CLONE_UNTRACED = 0x00800000 */
 	if (!(clone_flags & CLONE_UNTRACED)) {
+		/* CLONE_VFORK = 0x00004000 */
 		if (clone_flags & CLONE_VFORK)
 			trace = PTRACE_EVENT_VFORK;
+		/* CSIGNAL = 0x000000ff
+		   clone_flags 로 들어온것에 SIGCHLD 가 있는지 없는지에 따라
+		   trace 가 PTRACE_EVENT_FORK = 1  혹은 PTRACE_EVENT_CLONE = 3 이 됨 */
 		else if ((clone_flags & CSIGNAL) != SIGCHLD)
 			trace = PTRACE_EVENT_CLONE;
 		else
 			trace = PTRACE_EVENT_FORK;
 
+		/* current 는 현재 구동중인 task */
 		if (likely(!ptrace_event_enabled(current, trace)))
 			trace = 0;
 	}
 
+	/* clone_flags = SIGCHLD, stack_start = 0, stack_size = 0,
+	   child_tidptr = NULL, NULL, trace = 0, tls = 0
+
+	   부모 프로세스의 task_struct 정보를 기반으로
+	   자식 프로세스를 만들었고 그것은 p 에 해당함 */
 	p = copy_process(clone_flags, stack_start, stack_size,
 			 child_tidptr, NULL, trace, tls);
 	/*

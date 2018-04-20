@@ -809,6 +809,17 @@ static inline void ftrace_dump(enum ftrace_dump_mode oops_dump_mode) { }
  * @member:	the name of the member within the struct.
  *
  */
+
+/* ptr = &security_hook_heads.task_create
+   type = struct security_hook_list
+   typeof( ((type *)0)->member ) = struct list_head */
+
+/* ptr = entry
+   type = struct page
+   member = lru
+
+   const list_head *__mptr = entry
+   (struct page *)((char *)__mptr - page 구조체 내에서 lru 멤버의 옵셋) */
 #define container_of(ptr, type, member) ({			\
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
 	(type *)( (char *)__mptr - offsetof(type,member) );})

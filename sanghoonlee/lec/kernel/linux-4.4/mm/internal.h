@@ -25,6 +25,13 @@
 			__GFP_NORETRY|__GFP_MEMALLOC|__GFP_NOMEMALLOC)
 
 /* The GFP flags allowed during early boot */
+
+/* __GFP_FS = 0x80
+   __GFP_IO = 0x40
+   __GFP_RECLAIM = 0x2400000
+   ~0x24000C0 = 0xFDCFFF4F
+   __GFP_BITS_MASK = 2^26 - 1 = 0x04000000 - 1 = 0x03FFFFFF
+   GFP_BOOT_MASK = 0x03FFFFFF & 0xFDCFFF4F = 0x01CFFF4F */
 #define GFP_BOOT_MASK (__GFP_BITS_MASK & ~(__GFP_RECLAIM|__GFP_IO|__GFP_FS))
 
 /* Control allocation cpuset and node placement constraints */

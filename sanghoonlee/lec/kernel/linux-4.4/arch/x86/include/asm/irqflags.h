@@ -17,6 +17,10 @@ static inline unsigned long native_save_fl(void)
 	 * it evaluates its effective address -- this is part of the
 	 * documented behavior of the "pop" instruction.
 	 */
+
+	/* EFLAGS 레지스터는 사용자가 직접 제어할 수 없는 레지스터다.
+	   그러므로 pushf 를 통해 Stack 에 넣고 pop 을 통해
+	   flags 변수에 EFLAGS 레지스터의 값을 저장하는 부분이다. */
 	asm volatile("# __raw_save_flags\n\t"
 		     "pushf ; pop %0"
 		     : "=rm" (flags)
@@ -28,6 +32,8 @@ static inline unsigned long native_save_fl(void)
 
 static inline void native_restore_fl(unsigned long flags)
 {
+	/* EFLAGS 레지스터에 9 번 비트를 다시 활성화 시켜
+	   Interrupt 를 활성화 시키는 부분임 */
 	asm volatile("push %0 ; popf"
 		     : /* no output */
 		     :"g" (flags)
@@ -36,6 +42,9 @@ static inline void native_restore_fl(unsigned long flags)
 
 static inline void native_irq_disable(void)
 {
+	/* cli = Clear Interrupt Flags
+	   EFLAGS 레지스터의 9 번 비트 치우기
+	   Interrupt 를 꺼버렸다. */
 	asm volatile("cli": : :"memory");
 }
 

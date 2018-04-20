@@ -348,6 +348,13 @@ static inline void list_splice_tail_init(struct list_head *list,
  * @type:	the type of the struct this is embedded in.
  * @member:	the name of the list_head within the struct.
  */
+
+/* ptr = &security_hook_heads.task_create
+   type = struct security_hook_list */
+
+/* ptr = entry
+   type = struct page
+   member = lru */
 #define list_entry(ptr, type, member) \
 	container_of(ptr, type, member)
 
@@ -359,6 +366,9 @@ static inline void list_splice_tail_init(struct list_head *list,
  *
  * Note, that list is expected to be not empty.
  */
+
+/* ptr = &security_hook_heads.task_create
+   type = struct security_hook_list */
 #define list_first_entry(ptr, type, member) \
 	list_entry((ptr)->next, type, member)
 
@@ -443,6 +453,9 @@ static inline void list_splice_tail_init(struct list_head *list,
  * @head:	the head for your list.
  * @member:	the name of the list_head within the struct.
  */
+
+/* head = &security_hook_heads.task_create
+   typeof(*pos) = struct security_hook_list */
 #define list_for_each_entry(pos, head, member)				\
 	for (pos = list_first_entry(head, typeof(*pos), member);	\
 	     &pos->member != (head);					\

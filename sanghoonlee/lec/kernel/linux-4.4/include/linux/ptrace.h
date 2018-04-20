@@ -105,6 +105,7 @@ static inline struct task_struct *ptrace_parent(struct task_struct *task)
  */
 static inline bool ptrace_event_enabled(struct task_struct *task, int event)
 {
+	// PT_EVENT_FLAG(1) = 16
 	return task->ptrace & PT_EVENT_FLAG(event);
 }
 

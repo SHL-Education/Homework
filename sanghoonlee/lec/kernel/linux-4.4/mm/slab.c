@@ -441,6 +441,8 @@ static inline struct kmem_cache *virt_to_cache(const void *obj)
 static inline void *index_to_obj(struct kmem_cache *cache, struct page *page,
 				 unsigned int idx)
 {
+	/* page->s_mem 은 Slab 할당자의 시작 위치
+	   cache->size 는 Slab 단위의 크기 * idx 를 반환해줌 */
 	return page->s_mem + cache->size * idx;
 }
 
@@ -3146,8 +3148,10 @@ slab_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid,
 {
 	unsigned long save_flags;
 	void *ptr;
+	/* NUMA ID 값 설정 */
 	int slab_node = numa_mem_id();
 
+	/* flags = GFP_KERNEL */
 	flags &= gfp_allowed_mask;
 
 	lockdep_trace_alloc(flags);
@@ -3181,6 +3185,8 @@ slab_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid,
 			goto out;
 	}
 	/* ___cache_alloc_node can fall back to other nodes */
+
+	/* 실제 Slab 을 통해 페이지 할당 */
 	ptr = ____cache_alloc_node(cachep, flags, nodeid);
   out:
 	local_irq_restore(save_flags);
@@ -3455,6 +3461,7 @@ EXPORT_SYMBOL(kmem_cache_alloc_trace);
  */
 void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
 {
+	/* Slab 을 통해 메모리 할당 받음 */
 	void *ret = slab_alloc_node(cachep, flags, nodeid, _RET_IP_);
 
 	trace_kmem_cache_alloc_node(_RET_IP_, ret,

@@ -215,6 +215,18 @@ static inline u32 task_sid(const struct task_struct *task)
  */
 static inline u32 current_sid(void)
 {
+#if 0	// current_security()
+	task_struct->cred->security
+
+	struct task_security_struct {
+   	u32 osid;       /* SID prior to last execve */
+    u32 sid;        /* current SID */
+    u32 exec_sid;       /* exec SID */
+    u32 create_sid;     /* fscreate SID */
+    u32 keycreate_sid;  /* keycreate SID */
+    u32 sockcreate_sid; /* fscreate SID */
+	};
+#endif
 	const struct task_security_struct *tsec = current_security();
 
 	return tsec->sid;
@@ -1552,6 +1564,9 @@ static int current_has_perm(const struct task_struct *tsk,
 
 	sid = current_sid();
 	tsid = task_sid(tsk);
+
+	/* TODO:
+	   SECCLASS_PROCESS = ??? */
 	return avc_has_perm(sid, tsid, SECCLASS_PROCESS, perms, NULL);
 }
 
@@ -3531,6 +3546,8 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
 
 static int selinux_task_create(unsigned long clone_flags)
 {
+	/* TODO:
+	   PROCESS__FORK ??? */
 	return current_has_perm(current, PROCESS__FORK);
 }
 
