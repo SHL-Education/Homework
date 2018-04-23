@@ -463,8 +463,22 @@ struct task_struct *find_task_by_vpid(pid_t vnr)
 
 struct pid *get_task_pid(struct task_struct *task, enum pid_type type)
 {
+#if 0	// pid 구조체
+	struct pid
+	{
+    	atomic_t count;
+    	unsigned int level;
+   		/* lists of tasks that use this pid */
+    	struct hlist_head tasks[PIDTYPE_MAX];
+    	struct rcu_head rcu;
+    	struct upid numbers[1];
+	};
+#endif
+
 	struct pid *pid;
 	rcu_read_lock();
+
+	/* type = PIDTYPE_PID */
 	if (type != PIDTYPE_PID)
 		task = task->group_leader;
 	pid = get_pid(rcu_dereference(task->pids[type].pid));
@@ -499,6 +513,15 @@ EXPORT_SYMBOL_GPL(find_get_pid);
 
 pid_t pid_nr_ns(struct pid *pid, struct pid_namespace *ns)
 {
+#if 0
+	struct upid {
+    	/* Try to keep pid_chain in the same cacheline as nr for find_vpid */
+    	int nr;
+    	struct pid_namespace *ns;
+    	struct hlist_node pid_chain;
+	};
+#endif
+
 	struct upid *upid;
 	pid_t nr = 0;
 
@@ -544,6 +567,8 @@ EXPORT_SYMBOL(task_tgid_nr_ns);
 
 struct pid_namespace *task_active_pid_ns(struct task_struct *tsk)
 {
+	/* tsk = current
+	   PID 에 해당하는 namespace 를 얻어옴 */
 	return ns_of_pid(task_pid(tsk));
 }
 EXPORT_SYMBOL_GPL(task_active_pid_ns);

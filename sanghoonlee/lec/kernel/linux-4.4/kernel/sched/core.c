@@ -832,6 +832,8 @@ static inline void enqueue_task(struct rq *rq, struct task_struct *p, int flags)
 	update_rq_clock(rq);
 	if (!(flags & ENQUEUE_RESTORE))
 		sched_info_queued(rq, p);
+	/* 함수 포인터의 핸들러를 찾아야함
+	   p->sched_class->enqueue_task = enqueue_task_fair */
 	p->sched_class->enqueue_task(rq, p, flags);
 }
 
@@ -2376,6 +2378,8 @@ void wake_up_new_task(struct task_struct *p)
 
 	raw_spin_lock_irqsave(&p->pi_lock, flags);
 	/* Initialize new task's runnable average */
+
+	/* CFS 스케쥴러를 기반으로 태스크의 Time Slice 을 결정 지음 */
 	init_entity_runnable_average(&p->se);
 #ifdef CONFIG_SMP
 	/*
@@ -2387,6 +2391,7 @@ void wake_up_new_task(struct task_struct *p)
 #endif
 
 	rq = __task_rq_lock(p);
+	/* 실제 자식 프로세스(p) 를 Run Queue 에 올렸음 */
 	activate_task(rq, p, 0);
 	p->on_rq = TASK_ON_RQ_QUEUED;
 	trace_sched_wakeup_new(p);

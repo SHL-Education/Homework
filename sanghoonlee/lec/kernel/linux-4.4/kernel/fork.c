@@ -1792,18 +1792,22 @@ long _do_fork(unsigned long clone_flags,
 
 		trace_sched_process_fork(current, p);
 
+		/* 자식(p)의 PID 값을 얻어옴 */
 		pid = get_task_pid(p, PIDTYPE_PID);
 		nr = pid_vnr(pid);
 
+		/* CLONE_PARENT_SETTID = 0x00100000 */
 		if (clone_flags & CLONE_PARENT_SETTID)
 			put_user(nr, parent_tidptr);
 
+		/* CLONE_VFORK = 0x00004000 */
 		if (clone_flags & CLONE_VFORK) {
 			p->vfork_done = &vfork;
 			init_completion(&vfork);
 			get_task_struct(p);
 		}
 
+		/* 본격적으로 구동(즉 여기서 스케쥴러와 관련된 작업 수행)을 시작해라! */
 		wake_up_new_task(p);
 
 		/* forking complete and child started to run, tell ptracer */
