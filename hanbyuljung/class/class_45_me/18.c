@@ -4,7 +4,7 @@
 int main(void)
 {
 	int i;
-	unsigned int test_arr[5]={0};
+	unsigned int test_arr[5]={1,1,1,0,0};
 
 	register unsigned int *r0 asm("r0")=0;
 	register unsigned int r1 asm("r1")=0;

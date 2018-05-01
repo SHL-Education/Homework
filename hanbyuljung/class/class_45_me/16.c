@@ -1,6 +1,6 @@
 #include<stdio.h>
 
-char test[] = "HelloARM";
+char test[] = "HelloARMddd";
 
 void show_reg(unsigned int reg)
 {
