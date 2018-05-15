@@ -67,9 +67,18 @@ float magnitude(vec3 v)
 
 void gramschmidt_normalization(vec3 *arr, vec3 *res, vec3 r)
 {
-	float mag = magnitude(arr[0]);
-	r.scale(1.0 / mag, arr[0], &res[0]);
+	vec3 scale1 = {};
+	float dot1, mag1;
+
+	mag1 = magnitude(arr[0]);
+	r.scale(1.0 / mag1, arr[0], &res[0]);
 	r.print(res[0]);
+
+	mag1 = magnitude(res[0]);
+	dot1 = r.dot(arr[1], res[0]);
+	r.scale(dot1 * (1.0 / mag1), res[0], &scale1);
+	r.sub(arr[1], scale1, &res[1]);
+	r.print(res[1]);
 }
 
 #endif
