@@ -256,7 +256,6 @@ void finalize(float (*R)[4], float *xyz)
 void gauss_elimination(float (*A)[3], float *ans, float *xyz)
 {
 	float R[3][4] = {};
-	float scale;
 
 	create_3x4_mat(A, ans, R);
 #if __DEBUG__
@@ -274,6 +273,81 @@ void gauss_elimination(float (*A)[3], float *ans, float *xyz)
 #endif
 
 	finalize(R, xyz);
+}
+
+void create_3x6_mat(float (*A)[3], float (*R)[6])
+{
+	int i, j;
+
+	for(i = 0; i < 3; i++)
+		for(j = 0; j < 3; j++)
+		{
+			R[i][j] = A[i][j];
+
+			if(i == j)
+				R[i][j + 3] = 1;
+			else
+				R[i][j + 3] = 0;
+		}
+}
+
+void print_3x6_mat(float (*R)[6])
+{
+	int i, j;
+
+	for(i = 0; i < 3; i++)
+    {
+        for(j = 0; j < 6; j++)
+            printf("%10.4f", R[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void adjust_3x6_mat(float (*A)[6], int idx, float (*R)[6])
+{
+    int i, j;
+    float div_factor, scale;
+
+	scale = A[idx][idx];
+
+    for(i = idx + 1; i < 3; i++)
+    {
+        //div_factor = -A[idx][idx] / A[idx + 1][idx];
+        //div_factor = -A[idx + 1][idx] / A[idx][idx];
+        //div_factor = -A[i][0] / A[idx][0];
+        div_factor = -A[i][idx] / A[idx][idx];
+        printf("div_factor = %f\n", div_factor);
+
+		if(div_factor == 0.0)
+			continue;
+
+        for(j = 0; j < 6; j++)
+            R[i][j] = A[idx][j] * div_factor + A[i][j];
+    }
+
+	for(j = 0; j < 6; j++)
+		R[idx][j] = A[idx][j] / scale;
+}
+
+void gauss_elim_mat(float (*A)[3], float (*R)[3])
+{
+	float mid[3][6] = {};
+
+	create_3x6_mat(A, mid);
+#if __DEBUG__
+	print_3x6_mat(mid);
+#endif
+
+	adjust_3x6_mat(mid, 0, mid);
+#if __DEBUG__
+    print_3x6_mat(mid);
+#endif
+
+	adjust_3x6_mat(mid, 1, mid);
+#if __DEBUG__
+    print_3x6_mat(mid);
+#endif
 }
 
 int main(void)
@@ -347,6 +421,10 @@ int main(void)
 	printf("가우스 소거법 기반 연립 방정식 풀기!(문제 위의 것과 동일함)\n");
 	gauss_elimination(stimul, ans, xyz);
 	print_vec3(xyz);
+
+	printf("가우스 소거법으로 역행렬 구하기!\n");
+	gauss_elim_mat(test, R);
+	print_mat(R);
 
 	return 0;
 }
