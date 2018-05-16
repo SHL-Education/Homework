@@ -76,7 +76,7 @@ void gramschmidt_normalization(vec3 *arr, vec3 *res, vec3 r)
 
 	mag1 = magnitude(res[0]);
 	dot1 = r.dot(arr[1], res[0]);
-	r.scale(dot1 * (1.0 / mag1), res[0], &scale1);
+	r.scale(dot1 * (1.0 / pow(mag1, 2.0)), res[0], &scale1);
 	r.sub(arr[1], scale1, &res[1]);
 	r.print(res[1]);
 }
