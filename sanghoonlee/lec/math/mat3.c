@@ -202,6 +202,80 @@ void print_vec3(float *vec)
 	printf("\n");
 }
 
+void create_3x4_mat(float (*A)[3], float *ans, float (*R)[4])
+{
+	int i, j;
+
+	for(i = 0; i < 3; i++)
+	{
+		for(j = 0; j < 3; j++)
+			R[i][j] = A[i][j];
+
+		R[i][3] = ans[i];
+	}
+}
+
+void print_3x4_mat(float (*R)[4])
+{
+	int i, j;
+
+	for(i = 0; i < 3; i++)
+    {
+        for(j = 0; j < 4; j++)
+            printf("%10.4f", R[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void adjust_3x4_mat(float (*A)[4], int idx, float (*R)[4])
+{
+	int i, j;
+	float div_factor;
+
+	for(i = idx + 1; i < 3; i++)
+	{
+		//div_factor = -A[idx][idx] / A[idx + 1][idx];
+		//div_factor = -A[idx + 1][idx] / A[idx][idx];
+		//div_factor = -A[i][0] / A[idx][0];
+		div_factor = -A[i][idx] / A[idx][idx];
+		printf("div_factor = %f\n", div_factor);
+
+		for(j = 0; j < 4; j++)
+			R[i][j] = A[idx][j] * div_factor + A[i][j];
+	}
+}
+
+void finalize(float (*R)[4], float *xyz)
+{
+	xyz[2] = R[2][3] / R[2][2];
+	xyz[1] = (R[1][3] - R[1][2] * xyz[2]) / R[1][1];
+	xyz[0] = (R[0][3] - R[0][2] * xyz[2] - R[0][1] * xyz[1]) / R[0][0];
+}
+
+void gauss_elimination(float (*A)[3], float *ans, float *xyz)
+{
+	float R[3][4] = {};
+	float scale;
+
+	create_3x4_mat(A, ans, R);
+#if __DEBUG__
+	print_3x4_mat(R);
+#endif
+
+	adjust_3x4_mat(R, 0, R);
+#if __DEBUG__
+	print_3x4_mat(R);
+#endif
+
+	adjust_3x4_mat(R, 1, R);
+#if __DEBUG__
+	print_3x4_mat(R);
+#endif
+
+	finalize(R, xyz);
+}
+
 int main(void)
 {
 	bool inv_flag;
@@ -268,6 +342,10 @@ int main(void)
 
 	printf("크래머 공식 기반 연립 방정식 풀기!\n2x + 4y + 4z = 12\n6x + 2y + 2z = 16\n4x + 2y + 4z = 20\n");
 	crammer_formula(stimul, ans, xyz);
+	print_vec3(xyz);
+
+	printf("가우스 소거법 기반 연립 방정식 풀기!(문제 위의 것과 동일함)\n");
+	gauss_elimination(stimul, ans, xyz);
 	print_vec3(xyz);
 
 	return 0;
