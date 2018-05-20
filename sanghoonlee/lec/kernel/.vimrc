@@ -1,4 +1,5 @@
 set hlsearch
+set nu
 set ts=4
 
 set tags=/home/sdr/kernel/linux-4.4/tags
