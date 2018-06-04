@@ -6,7 +6,7 @@ entity servo_pwm is
     port(
         clk : in std_logic;
         reset : in std_logic;
-        pos : in std_logic_vector(9 downto 0);
+        pos : in std_logic_vector(7 downto 0);
         servo : out std_logic
     );
 end servo_pwm;
@@ -15,7 +15,7 @@ architecture Behavioral of servo_pwm is
     signal cnt : unsigned(11 downto 0);
     signal pwmi : unsigned(9 downto 0);
 begin
-    pwmi <= unsigned(pos) + 180;
+    pwmi <= "00" & unsigned(pos) + 180;
     counter : process(reset, clk) begin
         if(reset = '1') then
             cnt <= (others => '0');

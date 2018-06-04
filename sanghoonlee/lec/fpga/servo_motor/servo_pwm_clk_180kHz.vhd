@@ -20,7 +20,7 @@ architecture Behavioral of servo_pwm_clk_180kHz is
 
     component clk_180kHz
         port(
-            clk_in : in std_logic;
+            clk : in std_logic;
             reset : in std_logic;
             clk_out : out std_logic
         );
@@ -43,7 +43,7 @@ begin
     );
 
     clk_180kHz_map : clk_180kHz port map(
-        clk_in => clk, reset => reset, clk_out => clk_out
+        clk => clk, reset => reset, clk_out => clk_out
     );
     
     servo_pwm_map : servo_pwm port map(
