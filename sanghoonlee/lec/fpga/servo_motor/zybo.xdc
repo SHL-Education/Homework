@@ -146,3 +146,6 @@ set_property -dict {PACKAGE_PIN V15 IOSTANDARD LVCMOS33} [get_ports servo]
 #set_property -dict { PACKAGE_PIN R19   IOSTANDARD LVCMOS33 } [get_ports vga_vs]; #IO_0_34 Sch=VGA_VS
 
 set_property IOSTANDARD LVCMOS33 [get_ports reset]
+
+
+set_property PACKAGE_PIN T19 [get_ports reset]
