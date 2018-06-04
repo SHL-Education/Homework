@@ -1,24 +1,3 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 06/04/2018 11:07:39 AM
--- Design Name: 
--- Module Name: servo_pwm_clk180kHz_tb - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -34,7 +13,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity servo_pwm_clk180kHz_tb is
 end servo_pwm_clk180kHz_tb;
 
-architecture Behavioral of servo_pwm_clk180kHz_tb is
+architecture Test of servo_pwm_clk180kHz_tb is
     component servo_pwm_clk180kHz
         port(
             clk : in std_logic;
@@ -61,7 +40,7 @@ begin
     );
     
     clk_process : process begin
-        clk <= '9';
+        clk <= '0';
         wait for clk_period / 2;
         clk <= '1';
         wait for clk_period / 2;
@@ -82,4 +61,4 @@ begin
         wait;
     end process;
 
-end Behavioral;
+end Test;
