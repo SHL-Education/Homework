@@ -42,9 +42,7 @@ void rect_pulse_signal(void)
 
 		//y = amp * (sin(omega * t) / (omega * t));
 		for(i = 1; i < 101; i++)
-		{
 			y += 100 * ((1 - cos(i * M_PI)) / (i * M_PI) * sin(i * t));
-		}
 
 		if(cache)
 		{
